@@ -1,0 +1,328 @@
+<div class="product-single" itemscope itemtype="http://schema.org/Product" data-section-id="{{ section.id }}"
+	 data-section-type="product-section" data-enable-history-state="true">
+	<div class="container">
+		<meta itemprop="name" content="{{ product.title }}">
+		<meta itemprop="url" content="{{ shop.url }}{{ product.url }}">
+		<meta itemprop="image" content="{{ product.featured_image.src | img_url: '800x' }}">
+
+		{%- assign current_variant = product.selected_or_first_available_variant -%}
+		{%- assign product_thumb_size = '150x' -%}
+		{%- assign sizechart = section.settings.size_chart -%}
+
+		{% case section.settings.image_size %}
+		{% when 'small' %}
+		{%- assign product_image_width = 'col-xs-12 col-sm-5 col-md-4' -%}
+		{%- assign product_description_width = 'col-xs-12 col-sm-7 col-md-8' -%}
+		{%- assign product_image_size = '370x' -%}
+		{% when 'medium' %}
+		{%- assign product_image_width = 'col-xs-12 col-sm-5 col-md-5' -%}
+		{%- assign product_description_width = 'col-xs-12 col-sm-7 col-md-7' -%}
+		{%- assign product_image_size = '470x' -%}
+		{% when 'large' %}
+		{%- assign product_image_width = 'col-xs-12 col-sm-5 col-md-6' -%}
+		{%- assign product_description_width = 'col-xs-12 col-sm-7 col-md-6' -%}
+		{%- assign product_image_size = '570x' -%}
+		{% when 'full' %}
+		{%- assign product_image_width = 'col-xs-12 col-sm-5 col-md-12' -%}
+		{%- assign product_description_width = 'col-xs-12 col-sm-7 col-md-12' -%}
+		{%- assign product_image_size = '1140x' -%}
+		{% endcase %}
+
+		<div class="row">
+			<div class="{{ product_image_width }}">
+				<div class="product-single__images">
+					<div class="product-single__photos slick-slider manual-init" id="ProductPhoto">
+						{% for image in product.images %}
+							<div class="product-single__photos__item">
+								{% assign featured_image = current_variant.featured_image | default: product.featured_image %}
+								<img src="{{ image.src | img_url: product_image_size }}" alt="{{ image.alt | escape }}">
+							</div>
+						{% endfor %}
+					</div>
+
+					{% if product.images.size > 1 %}
+						<div class="product-single__thumbnails slick-slider manual-init" id="ProductThumbs">
+							{% for image in product.images %}
+								{% for variant in image.variants %}
+									<div class="product-single__thumbnails__item" {% if image.attached_to_variant? %} data-variant="{{ variant.id }}" {% endif %}
+										 data-index="{{ image.position }}">
+										<img src="{{ image.src | img_url: product_thumb_size }}"
+											 alt="{{ image.alt | escape }}">
+									</div>
+								{% else %}
+									<div class="product-single__thumbnails__item">
+										<img src="{{ image.src | img_url: product_thumb_size }}"
+											 alt="{{ image.alt | escape }}">
+									</div>
+								{% endfor %}
+							{% endfor %}
+
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+			<div class="{{ product_description_width }}">
+				<div class="product-single__content">
+
+					<h1 itemprop="name" class="product-single__title">{{ product.title }}</h1>
+
+					{% if section.settings.show_vendor %}
+						<p itemprop="brand" class="product-single__vendor">{{ product.vendor }}</p>
+					{% endif %}
+
+					<div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+						<meta itemprop="priceCurrency" content="{{ shop.currency }}">
+
+						<link itemprop="availability" href="http://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}">
+
+						{% include 'product-price' %}
+
+						{% if product.options contains 'Size' and sizechart != blank %}
+							<a class="size-chart-open-popup"
+							   href="#size-chart">{{ 'products.product.size_chart' | t }}</a>
+						{% endif %}
+
+						<form action="/cart/add" method="post" enctype="multipart/form-data" class="form__atc{% if section.settings.colorswatch %} swatch-enabled{% endif %}">
+							{% if product.available and product.variants.size > 1 and section.settings.colorswatch %}
+								{% for option in product.options %}
+									{% include 'swatch' with option %}
+								{% endfor %}
+							{% endif %}
+							<select name="id" id="productSelect" class="product-form__variants">
+								{% for variant in product.variants %}
+									{% if variant.available %}
+										<option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %}
+												data-sku="{{ variant.sku }}"
+												value="{{ variant.id }}">{{ variant.title }}
+											- {{ variant.price | money_with_currency }}</option>
+
+									{% else %}
+										<option disabled="disabled">
+											{{ variant.title }} - {{ 'products.product.sold_out' | t }}
+										</option>
+									{% endif %}
+								{% endfor %}
+							</select>
+							<div class="form__atc--action is-flex">
+								{% if section.settings.show_quantity_selector %}
+									<input type="number" id="Quantity" name="quantity" value="1" min="1"
+										   class="quantity-selector">
+								{% endif %}
+
+								<button type="submit" name="add" class="btn btn--primary btn-xs--sm btn--ajax btn--atc{% if section.settings.enable_upsell %} btn--has-upsell{% endif %}">
+									<span>{{ 'products.product.add_to_cart' | t }}</span>
+									<i class="fa fa-shopping-basket"></i>
+								</button>
+							</div>
+						</form>
+					</div>
+					{% if product.description != empty %}
+						<div class="product-single__description" itemprop="description">
+							{{ product.description }}
+						</div>
+					{% endif %}
+
+					{% if section.settings.show_countdown_timer and section.settings.countdown_timer_end %}
+						<div class="product-single__countdown">
+							{% if section.settings.countdown_timer_message %}
+							<h3 class="product-single__countdown--title">{{ section.settings.countdown_timer_message }}</h3>
+							{% endif %}
+
+							<div class="countdown"></div>
+							<script>
+								$(function() {
+									var endDate = "{{ section.settings.countdown_timer_end }} 00:00:00";
+
+									$('.countdown').countdown({
+									date: endDate,
+									render: function(data) {
+										$(this.el).html("<div>" + this.leadingZeros(data.days, 3) + " <span>days</span></div><div>" + this.leadingZeros(data.hours, 2) + " <span>hrs</span></div><div>" + this.leadingZeros(data.min, 2) + " <span>min</span></div><div>" + this.leadingZeros(data.sec, 2) + " <span>sec</span></div>");
+										}
+									});
+								});
+							</script>
+						</div>
+					{% endif %}
+
+					{% if section.settings.trust_badge %}
+						<div class="product-single__badge">
+							{% if section.settings.trust_badge_link %}
+								<a href="{{ section.settings.trust_badge_link }}" target="_blank">
+							{% endif %}
+								<img src="{{ section.settings.trust_badge | img_url: 'master' }}" />
+							{% if section.settings.trust_badge_link %}
+								</a>
+							{% endif %}
+						</div>
+					{% endif %}
+
+					{% if section.settings.show_share_buttons %}
+						{% include 'social-sharing', share_title: product.title, share_permalink: product.url, share_image: product %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% if section.settings.enable_upsell %}
+<div class="notice-cart--popup notice-cart--upsell">
+	<div class="notice-cart__inner">
+		<h4 class="notice-cart--upsell-title">
+			<span><strong>{{ product.title }}</strong> {{ 'cart.notice.added' | t }}</span>
+			<span>{{ section.settings.upsell_title }}</span>
+		</h4>
+		{%- assign new_product = all_products[section.settings.upsell_product] -%}
+		{% include 'product-upsell', image_width: '300x300' %}
+
+		<form action="/cart" method="post" class="cart">
+			<div class="is-flex">
+				{{ 'cart.notice.view_cart_html' | t }}
+				<input type="submit" name="checkout" class="btn btn--primary" value="{{ 'cart.general.checkout' | t }}" />
+			</div>
+		</form>
+		<span class="notice-cart__close">
+			<svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" viewBox="0 0 37 40">
+				<path d="M21.3 23l11-11c.8-.8.8-2 0-2.8-.8-.8-2-.8-2.8 0l-11 11-11-11c-.8-.8-2-.8-2.8 0-.8.8-.8 2 0 2.8l11 11-11 11c-.8.8-.8 2 0 2.8.4.4.9.6 1.4.6s1-.2 1.4-.6l11-11 11 11c.4.4.9.6 1.4.6s1-.2 1.4-.6c.8-.8.8-2 0-2.8l-11-11z"></path>
+			</svg>
+		</span>
+	</div>
+</div>
+{% endif %}
+
+{% unless sizechart == blank %}
+	<div id="size-chart" class="mfp-hide">
+		{{ pages[sizechart].content }}
+	</div>
+{% endunless %}
+
+{% unless product == empty %}
+	<script type="application/json" id="ProductJson-{{ section.id }}"></script>
+{% endunless %}
+
+{% include 'options-selector' %}
+
+{% schema %}
+{
+	"name": "Main product",
+	"settings": [
+		{
+			"type": "header",
+			"content": "Image settings"
+		},
+		{
+			"type": "select",
+			"id": "image_size",
+			"label": "Image size",
+			"options": [
+				{
+					"value": "small",
+					"label": "Small"
+				},
+				{
+					"value": "medium",
+					"label": "Medium"
+				},
+				{
+					"value": "large",
+					"label": "Large"
+				},
+				{
+					"value": "full",
+					"label": "Full-width"
+				}
+			],
+			"default": "medium"
+		},
+		{
+			"type": "header",
+			"content": "Product settings"
+		},
+		{
+			"type": "checkbox",
+			"id": "colorswatch",
+			"label": "Enable colorswatch",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_quantity_selector",
+			"label": "Show quantity selector",
+			"default": false
+		},
+		{
+			"type": "checkbox",
+			"id": "show_vendor",
+			"label": "Show vendor",
+			"default": false
+		},
+		{
+			"type": "checkbox",
+			"id": "show_share_buttons",
+			"label": "Show social sharing",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_countdown_timer",
+			"label": "Show countdown timer"
+		},
+		{
+			"type": "text",
+			"id": "countdown_timer_end",
+			"label": "Countdown end time",
+			"default": "June 7, 2020",
+			"info": "Example: June 7, 2020"
+		},
+		{
+			"type": "text",
+			"id": "countdown_timer_message",
+			"label": "Countdown message"
+		},
+		{
+			"type": "page",
+			"id": "size_chart",
+			"label": "Size chart content"
+		},
+		{
+			"type": "image_picker",
+			"id": "trust_badge",
+			"label": "Trust badge"
+		},
+		{
+			"id": "trust_badge_link",
+			"type": "url",
+			"label": "Trust badge link"
+		},
+		{
+			"type": "header",
+			"content": "Product upsell settings"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_upsell",
+			"label": "Enable upsell product when add to cart",
+			"default": false
+		},
+		{
+			"type": "product",
+			"id": "upsell_product",
+			"label": "Select product"
+		},
+		{
+			"type": "text",
+			"id": "upsell_title",
+			"label": "Upsell message",
+			"default": "Buy one more product to get 20% discount"
+		},
+		{
+			"type": "text",
+			"id": "upsell_discount",
+			"label": "Discount",
+			"info": "% of upsell product",
+			"default": "20"
+		}
+	]
+}
+{% endschema %}

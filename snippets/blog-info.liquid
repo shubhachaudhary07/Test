@@ -1,0 +1,18 @@
+<!-- /snippets/blog-info.liquid -->
+<h3 class="blog__title"><a href="{{ article.url }}">{{ article.title }}</a></h3>
+
+{% if section.settings.blog_show_author %}
+	<span class="blog__meta blog__author">{{ 'blogs.article.by_author' | t: author: article.author }}</span>
+{% endif %}
+
+{% if section.settings.blog_show_date %}
+	<span class="blog__meta blog__date">{{ article.published_at | time_tag: format: 'month_day_year' }}</span>
+{% endif %}
+
+<div class="blog__excerpt">
+	{% if article.excerpt.size > 0 %}
+		{{ article.excerpt }}
+	{% else %}
+		{{ article.content | strip_html | truncate: 300 }}
+	{% endif %}
+</div>

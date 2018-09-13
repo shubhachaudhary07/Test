@@ -1,0 +1,234 @@
+{% assign background = section.settings.background %}
+{% assign text = section.settings.text %}
+{% assign link = section.settings.link %}
+{% assign container = section.settings.full_width %}
+{% assign margin = section.settings.margin %}
+{% assign padding = section.settings.padding %}
+
+{% if background != blank or text != blank or link != blank or margin != blank or padding != blank %}
+	<style>
+		#shopify-section-{{section.id}} {
+			{% if background != blank %}
+				background: {{ background }};
+			{% endif %}
+
+			{% if text != blank %}
+				color: {{ text }};
+			{% endif %}
+			
+			{% if margin != blank %}
+				margin: {{ margin }};
+			{% endif %}
+
+			{% if padding != blank %}
+				padding: {{ padding }};
+			{% endif %}
+		}
+		
+		{% if link != blank %}
+			#shopify-section-{{section.id}} a {
+				color: {{ link }};
+			}
+		{% endif %}
+	</style>
+{% endif %}
+
+{% unless container %}<div class="container">{% endunless %}
+	{% if section.settings.title != blank %}
+		<div class="section-title center-xs">
+			{% if section.settings.sub_title != blank %}
+				<h4>{{ section.settings.sub_title | escape }}</h4>
+			{% endif %}
+			<h3>{{ section.settings.title | escape }}</h3>
+		</div>
+	{% endif %}
+
+	{%- assign blog = blogs[section.settings.blog] -%}
+
+	{% unless blog.articles_count == 0 %}
+		<div class="row">
+			{% for article in blog.articles limit: section.settings.post_limit %}
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<div class="article">
+						{% if article.image %}
+							<a class="article__image is-block" href="{{ article.url }}">
+								{{ article | img_url: '360x250' | img_tag: article.title }}
+							</a>
+						{% endif %}
+
+						<div class="article__info">
+							<div class="article__meta">
+								<h3 class="article__meta--title"><a href="{{ article.url }}">{{ article.title }}</a></h3>
+								{% if section.settings.blog_show_author %}
+									<span class="article__meta--author">{{ 'blogs.article.by_author' | t: author: article.author }}</span>
+								{% endif %}
+								{% if section.settings.blog_show_date %}
+									<span class="article__meta--time">{{ 'blogs.article.on_date' | t }} {{ article.published_at | time_tag: format: 'month_day_year' }}</span>
+								{% endif %}
+							</div>
+							<div class="article__excerpt">
+								{% if article.excerpt.size > 0 %}
+									{{ article.excerpt }}
+								{% else %}
+									{{ article.content | strip_html | truncate: 150 }}
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	{% else %}
+		<div class="row">
+			{% for i in (1..3) %}
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<div class="article">
+						<a class="article__image is-block" href="{{ article.url }}">
+							{% capture current %}{% cycle 1, 2 %}{% endcapture %}
+							{{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+						</a>
+						<div class="article__info">
+							<div class="article__meta">
+								<h3 class="article__meta--title">{{ 'blogs.article.featured_title' | t }}</h3>
+								<span class="article__meta--author">{{ 'blogs.article.lorem_author' | t }}</span>
+								<span class="article__meta--time">{{ 'blogs.article.lorem_time' | t }}</span>
+							</div>
+						</div>
+						<div class="article__excerpt">
+							{{ 'blogs.article.excerpt' | t }}
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	{% endunless %}
+
+	{% if section.settings.show_view_all %}
+		<div class="section-extra center-xs">
+			<a href="{{ blog.url }}" class="btn btn--primary btn-xs--sm is-inline-block">
+				{{ 'blogs.article.view_all' | t }}
+			</a>
+		</div>
+	{% endif %}
+{% unless container %}</div>{% endunless %}
+
+{% schema %}
+	{
+		"name": "Blog posts",
+		"settings": [
+			{
+				"type": "header",
+				"content": "Layout"
+			},
+			{
+				"type": "checkbox",
+				"id": "full_width",
+				"label": "Enable section full-width"
+			},
+			{
+				"type": "text",
+				"id": "margin",
+				"label": "Margin",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "text",
+				"id": "padding",
+				"label": "Padding",
+				"default": "50px 0 30px",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "header",
+				"content": "Content"
+			},
+			{
+				"type": "text",
+				"id": "title",
+				"label": "Heading",
+				"default": "Blog posts"
+			},
+			{
+				"type": "text",
+				"id": "sub_title",
+				"label": "Sub heading"
+			},
+			{
+				"id": "blog",
+				"type": "blog",
+				"label": "Choose blog"
+			},
+			{
+				"type": "select",
+				"id": "post_limit",
+				"label": "Posts",
+				"default": "3",
+				"options": [
+					{
+						"value": "3",
+						"label": "3"
+					},
+					{
+						"value": "6",
+						"label": "6"
+					},
+					{
+						"value": "9",
+						"label": "9"
+					},
+					{
+						"value": "12",
+						"label": "12"
+					}
+				]
+			},
+			{
+				"type": "checkbox",
+				"id": "blog_show_author",
+				"label": "Show author",
+				"default": true
+			},
+			{
+				"type": "checkbox",
+				"id": "blog_show_date",
+				"label": "Show date",
+				"default": true
+			},
+			{
+				"type": "checkbox",
+				"id": "show_view_all",
+				"label": "Show 'View all' button",
+				"default": false
+			},
+			{
+				"type": "header",
+				"content": "Colors"
+			},
+			{
+				"type": "color",
+				"id": "background",
+				"label": "Background"
+			},
+			{
+				"type": "color",
+				"id": "link",
+				"label": "Link"
+			},
+			{
+				"type": "color",
+				"id": "text",
+				"label": "Text"
+			}
+		],
+		"presets": [
+			{
+				"name": "Blog posts",
+				"category": "Blog",
+				"settings": {
+					"blog": "News",
+					"post_limit": "3"
+				}
+			}
+		]
+	}
+{% endschema %}

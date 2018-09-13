@@ -1,0 +1,231 @@
+{% assign background = section.settings.background %}
+{% assign text = section.settings.text %}
+{% assign link = section.settings.link %}
+{% assign container = section.settings.full_width %}
+{% assign margin = section.settings.margin %}
+{% assign padding = section.settings.padding %}
+
+{% if background != blank or text != blank or link != blank or margin != blank or padding != blank %}
+	<style>
+		#shopify-section-{{section.id}} {
+			{% if background != blank %}
+				background: {{ background }};
+			{% endif %}
+
+			{% if text != blank %}
+				color: {{ text }};
+			{% endif %}
+			
+			{% if margin != blank %}
+				margin: {{ margin }};
+			{% endif %}
+
+			{% if padding != blank %}
+				padding: {{ padding }};
+			{% endif %}
+		}
+		
+		{% if link != blank %}
+			#shopify-section-{{section.id}} a {
+				color: {{ link }};
+			}
+		{% endif %}
+	</style>
+{% endif %}
+
+{%- assign limit = section.settings.limit -%}
+
+{% case section.settings.limit %}
+	{% when '2' %}
+		{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-6' -%}
+		{%- assign product_image_size = '570x' -%}
+	{% when '3' %}
+		{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-4' -%}
+		{%- assign product_image_size = '370x' -%}
+	{% when '4' %}
+		{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-3' -%}
+		{%- assign product_image_size = '270x' -%}
+	{% when '6' %}
+		{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-2' -%}
+		{%- assign product_image_size = '170x' -%}
+{% endcase %}
+
+<div data-section-id="{{ section.id }}" data-section-type="product-tabs-section">
+	{% unless container %}<div class="container">{% endunless %}
+		{% if section.settings.title != blank %}
+			<div class="section-title center-xs">
+				<h3>{{ section.settings.title | escape }}</h3>
+			</div>
+		{% endif %}
+		<div class="tab tab--{{ section.id }}">
+			<ul class="tab__nav center-xs">
+				{% for block in section.blocks limit: section.blocks.size %}
+					{%- assign collection = collections[block.settings.collection] -%}
+
+					{% if collection != empty %}
+						{%- assign collection_title = collection.title -%}
+					{% else %}
+						{%- assign collection_title = 'homepage.onboarding.collection_title' | t -%}
+					{% endif %}
+
+					<li{% if forloop.first == true %} class="tab__nav--active"{% endif %}><a href="#{{ collection_title | handleize }}-{{ forloop.index }}">{{ collection_title }}</a></li>
+				{% endfor %}
+			</ul>
+			<div class="tab__content">
+				{% for block in section.blocks limit: section.blocks.size %}
+					{%- assign collection = collections[block.settings.collection] -%}
+					{% if collection != empty %}
+						{%- assign collection_title = collection.title -%}
+						{%- assign collection_url = collection.url -%}
+					{% else %}
+						{%- assign collection_title = 'homepage.onboarding.collection_title' | t -%}
+						{%- assign collection_url = '#' -%}
+					{% endif %}
+
+					<div class="tab__pane {% if forloop.first == true %}tab__pane--active{% endif %}"
+						 id="{{ collection_title | handleize }}-{{ forloop.index }}" {{ block.shopify_attributes }}>
+						<div class="row">
+							{% for product in collection.products limit: limit %}
+								<div class="{{ grid_item_width }}">
+									{% include 'product-grid-item', image_width: product_image_size %}
+								</div>
+							{% else %}
+								{% for i in (1..limit) %}
+									<div class="{{ grid_item_width }}">
+										{% include 'product-grid-item', image_width: product_image_size %}
+									</div>
+								{% endfor %}
+							{% endfor %}
+						</div>
+						{% if block.settings.show_view_all %}
+							<div class="section-extra center-xs">
+								<a href="{{ collection_url }}" class="btn btn--primary btn-xs--sm is-inline-block">
+									{{ 'collections.general.view_all' | t }}
+								</a>
+							</div>
+						{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	{% unless container %}</div>{% endunless %}
+</div>
+{% schema %}
+	{
+		"name": "Product tabs",
+		"max_blocks": 10,
+		"settings": [
+			{
+				"type": "header",
+				"content": "Layout"
+			},
+			{
+				"type": "checkbox",
+				"id": "full_width",
+				"label": "Enable section full-width"
+			},
+			{
+				"type": "text",
+				"id": "margin",
+				"label": "Margin",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "text",
+				"id": "padding",
+				"label": "Padding",
+				"default": "50px 0 30px",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "header",
+				"content": "Content"
+			},
+			{
+				"type": "text",
+				"id": "title",
+				"label": "Section heading",
+				"default": "Product Tabs"
+			},
+			{
+				"type": "select",
+				"id": "limit",
+				"label": "Limit product",
+				"default": "3",
+				"options": [
+					{
+						"value": "2",
+						"label": "2"
+					},
+					{
+						"value": "3",
+						"label": "3"
+					},
+					{
+						"value": "4",
+						"label": "4"
+					},
+					{
+						"value": "6",
+						"label": "6"
+					}
+				]
+			},
+			{
+				"type": "header",
+				"content": "Colors"
+			},
+			{
+				"type": "color",
+				"id": "background",
+				"label": "Background"
+			},
+			{
+				"type": "color",
+				"id": "link",
+				"label": "Heading"
+			},
+			{
+				"type": "color",
+				"id": "text",
+				"label": "Text"
+			}
+		],
+		"blocks": [
+			{
+				"type": "collection",
+				"name": "Collection",
+				"settings": [
+					{
+						"type": "collection",
+						"id": "collection",
+						"label": "Collection"
+					},
+					{
+						"type": "checkbox",
+						"id": "show_view_all",
+						"label": "Show 'View all' button",
+						"default": false
+					}
+				]
+			}
+		],
+		"presets": [
+			{
+				"name": "Product tabs",
+				"category": "Product",
+				"blocks": [
+					{
+						"type": "collection"
+					},
+					{
+						"type": "collection"
+					},
+					{
+						"type": "collection"
+					}
+				]
+			}
+		]
+	}
+{% endschema %}

@@ -1,0 +1,168 @@
+{%- assign limit = section.settings.grid | times: section.settings.rows -%}
+
+{% paginate collection.products by limit %}
+
+<div data-section-id="{{ section.id }}" data-section-type="collection-template">
+	<div class="head">
+		<div class="container">
+			<div class="head__title center-xs">
+				<h1>{{ collection.title }}</h1>
+				{% if collection.description != blank %}
+					<p>{{ collection.description }}</p>
+				{% endif %}
+			</div>
+			{% if section.settings.sort_enable %}
+				<div class="filters-toolbar">
+					{% include 'collection-sorting' %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="container">
+		{% case section.settings.grid %}
+		{% when '2' %}
+		{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-6' -%}
+		{%- assign product_image_size = '570x' -%}
+		{% when '3' %}
+		{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-4' -%}
+		{%- assign product_image_size = '370x' -%}
+		{% when '4' %}
+		{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-3' -%}
+		{%- assign product_image_size = '270x' -%}
+		{% when '6' %}
+		{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-2' -%}
+		{%- assign product_image_size = '170x' -%}
+		{% endcase %}
+		{% if section.settings.show_sidebar %}
+		<div class="row">
+			<div class="col-md-9">
+				{% endif %}
+				<div class="row">
+					{% for product in collection.products %}
+						<div class="{{ grid_item_width }}">
+							{% include 'product-grid-item', image_width: product_image_size %}
+						</div>
+					{% endfor %}
+				</div>
+				{% if section.settings.show_sidebar %}
+			</div>
+			<div class="col-md-3">
+				{% include 'collection-sidebar' %}
+			</div>
+		</div>
+		{% endif %}
+
+		{% if is_empty_collection %}
+			<p class="center-xs">{{ 'collections.general.no_matches' | t }}</p>
+		{% endif %}
+
+		{% if paginate.pages > 1 %}
+			{% include 'pagination' %}
+		{% endif %}
+	</div>
+</div>
+
+{% endpaginate %}
+
+{% schema %}
+{
+    "name": "Collection pages",
+    "settings": [
+        {
+            "type": "select",
+            "id": "grid",
+            "label": "Products per row (grid only)",
+            "default": "4",
+            "options": [
+                {
+                    "value": "2",
+                    "label": "2"
+                },
+                {
+                    "value": "3",
+                    "label": "3"
+                },
+                {
+                    "value": "4",
+                    "label": "4"
+                },
+                {
+                    "value": "6",
+                    "label": "6"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "rows",
+            "label": "Rows per page",
+            "default": "2",
+            "options": [
+                {
+                    "value": "2",
+                    "label": "2"
+                },
+                {
+                    "value": "3",
+                    "label": "3"
+                },
+                {
+                    "value": "4",
+                    "label": "4"
+                },
+                {
+                    "value": "5",
+                    "label": "5"
+                },
+                {
+                    "value": "6",
+                    "label": "6"
+                },
+                {
+                    "value": "7",
+                    "label": "7"
+                },
+                {
+                    "value": "8",
+                    "label": "8"
+                }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "sort_enable",
+            "label": "Enable sorting",
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": "Sidebar"
+        },
+        {
+            "type": "checkbox",
+            "id": "show_sidebar",
+            "label": "Enable sidebar",
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "show_categories",
+            "label": "Show categories",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "show_vendors",
+            "label": "Show vendors",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "show_tags",
+            "label": "Show tags",
+            "default": true
+        }
+    ]
+}
+{% endschema %}

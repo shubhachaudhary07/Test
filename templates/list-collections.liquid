@@ -1,0 +1,29 @@
+<div class="container no-title">
+	{% for collection in collections %}
+		{% unless collection.handle == 'frontpage' %}
+
+		<div class="row">
+			<div class="col-xs-3">
+				{% if collection.image %}
+					{% assign collection_image = collection | img_url: '480x480' %}
+				{% else %}
+					{% assign collection_image = collection.products.first | img_url: '480x480' %}
+				{% endif %}
+				<a href="{{ collection.url }}" class="collection-card"
+				   style="background-image: url({{ collection_image }});">
+					<div class="collection-card__meta">
+						<p class="h1 collection-card__title">{{ collection.title }}</p>
+						<p class="collection-card__subtext">{{ 'collections.general.view_all' | t }}</p>
+					</div>
+				</a>
+			</div>
+			{% for product in collection.products limit: 4 %}
+				<div class="col-xs-9">
+					{% include 'product-grid-item', product: product %}
+				</div>
+			{% endfor %}
+		</div>
+
+		{% endunless %}
+	{% endfor %}
+</div>

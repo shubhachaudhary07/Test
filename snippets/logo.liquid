@@ -1,0 +1,10 @@
+{% if section.settings.logo %}
+	<a href="/" class="header__logo-image">
+		{% capture image_size %}{{ section.settings.logo_max_width }}x{% endcapture %}
+		<img src="{{ section.settings.logo | img_url: image_size }}"
+			 srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
+			 alt="{{ section.settings.logo.alt | default: shop.name }}">
+	</a>
+{% else %}
+	<a class="header__logo-link" href="/">{{ shop.name }}</a>
+{% endif %}

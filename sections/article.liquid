@@ -1,0 +1,56 @@
+<div class="single has-title">
+	<div class="container">
+		<div class="head">
+			<div class="container">
+				<div class="head__title center-xs">
+					<h1 class="section-header__title">{{ article.title }}</h1>
+					{% if section.settings.blog_show_author %}
+						<span class="single__author">{{ 'blogs.article.by_author' | t: author: article.author }}</span>
+					{% endif %}
+					{% if section.settings.blog_show_date %}
+						<span class="single__date">{{ article.published_at | time_tag: format: 'month_day_year' }}</span>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		{% if article.image %}
+			<div class="single__image center-xs">
+				<img src="{{ article | img_url: 'master' }}" alt="{{ article.title }}">
+			</div>
+		{% endif %}
+
+		<div class="single__content">
+			{{ article.content }}
+		</div>
+
+		{% if section.settings.show_share_buttons %}
+			{% include 'social-sharing', share_title: article.title, share_permalink: article.url, share_image: article.image %}
+		{% endif %}
+	</div>
+</div>
+
+{% schema %}
+	{
+		"name": "Article settings",
+		"settings": [
+			{
+				"type": "checkbox",
+				"id": "blog_show_author",
+				"label": "Show author",
+				"default": true
+			},
+			{
+				"type": "checkbox",
+				"id": "blog_show_date",
+				"label": "Show publish date",
+				"default": true
+			},
+			{
+				"type": "checkbox",
+				"id": "show_share_buttons",
+				"label": "Show social sharing button",
+				"default": true
+			}
+		]
+	}
+{% endschema %}

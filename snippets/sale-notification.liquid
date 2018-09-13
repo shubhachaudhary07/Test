@@ -1,0 +1,30 @@
+<div class="sale-notification is-fixed {{ settings.sale_popup_position }}{% if settings.sale_popup_on_mobile %} show-on-mobile {% endif %}">
+	{% assign popup_collection = collections[settings.sale_popup_collection] %}
+	
+	{% if popup_collection.products.size > 0 %}
+
+		{% for product in popup_collection.products limit:1 %}
+			<div class="is-flex">
+	  
+				<img src="{{ product | img_url: '60x60' }}">
+				<div class="sale-notification__content is-flex">
+					<p>
+						{{ settings.sale_popup_message }}
+
+						<strong><a href="{{ product.url }}">{{ product.title }}</a></strong>
+					</p>
+
+					{% if settings.sale_popup_ago_time %}
+						<span>15 minutes ago</span>
+					{% endif %}
+				</div>
+			</div>
+		{% endfor %}
+	{% endif %}
+
+	{% if settings.sale_popup_close_button %}
+	<a class="is-absolute sale-notification__close" href="#">
+		<svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" viewBox="0 0 37 40"><path d="M21.3 23l11-11c.8-.8.8-2 0-2.8-.8-.8-2-.8-2.8 0l-11 11-11-11c-.8-.8-2-.8-2.8 0-.8.8-.8 2 0 2.8l11 11-11 11c-.8.8-.8 2 0 2.8.4.4.9.6 1.4.6s1-.2 1.4-.6l11-11 11 11c.4.4.9.6 1.4.6s1-.2 1.4-.6c.8-.8.8-2 0-2.8l-11-11z"></path></svg>
+	</a>
+	{% endif %}
+</div>

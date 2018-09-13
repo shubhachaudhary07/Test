@@ -1,0 +1,430 @@
+<style>
+	.footer {
+		background: {{ section.settings.background }};
+		color: {{ section.settings.text }};
+	}
+	.footer * {
+		color: {{ section.settings.text }};
+	}
+	.footer a {
+		color: {{ section.settings.link }};
+	}
+	.footer a:hover {
+		opacity: .8;
+	}
+	.footer .btn--secondary span {
+		color: #fff;
+	}
+</style>
+<div class="footer">
+	{% if section.blocks.size > 0 %}
+		<div class="footer__top">
+			<div class="container">
+				<div class="row">
+					{% for block in section.blocks %}
+						{% case block.settings.width %}
+							{% when '16%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-2' -%}
+								{%- assign image_size = '300x300' -%}
+							{% when '25%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-3' -%}
+								{%- assign image_size = '400x400' -%}
+							{% when '33%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-4' -%}
+								{%- assign image_size = '450x450' -%}
+							{% when '41%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-5' -%}
+								{%- assign image_size = '450x450' -%}
+							{% when '50%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-6' -%}
+								{%- assign image_size = '600x600' -%}
+							{% when '58%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-7' -%}
+								{%- assign image_size = '600x600' -%}
+							{% when '66%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-8' -%}
+								{%- assign image_size = '720x720' -%}
+							{% when '75%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-9' -%}
+								{%- assign image_size = '810x810' -%}
+							{% when '100%' %}
+								{%- assign block_width = 'col-xs-12 col-sm-6 col-md-12' -%}
+								{%- assign image_size = '1090x1090' -%}
+						{% endcase %}
+						<div class="{{ block_width }}" {{ block.shopify_attributes }}>
+							<div class="widget">
+								{% if block.settings.heading != blank %}
+									<h3 class="widget__title">{{ block.settings.heading | escape }}</h3>
+								{% endif %}
+								<div class="widget__{{ block.type }}">
+									{% case block.type %}
+										{% when 'image' %}
+											{% if block.settings.image != blank %}
+												{{ block.settings.image | img_url: image_size, crop: 'top' | img_tag }}
+											{% else %}
+												{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+											{% endif %}
+
+										{% when 'html' %}
+											{% if block.settings.html != blank %}
+												{{ block.settings.html }}
+											{% endif %}
+
+										{% when 'menu' %}
+											{%- assign footer_menus = block.settings.footer_menus -%}
+
+											{% if linklists[footer_menus].links.size > 0 %}
+												<ul class="nav__footer">
+													{% for link in linklists[footer_menus].links %}
+														<li>
+															<a href="{{ link.url }}">{{ link.title }}</a>
+														</li>
+													{% endfor %}
+												</ul>
+											{% endif %}
+
+										{% when 'form' %}
+											{{ block.settings.content_above }}
+											{% include 'newsletter-form', action_link: block.settings.action_link, placeholder: block.settings.placeholder %}
+											{{ block.settings.content_below }}
+									{% endcase %}
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	{% assign copyright = section.settings.copyright %}
+	{% if copyright != blank %}
+		<div class="footer__bottom">
+			<div class="container">
+				{{ copyright }}
+			</div>
+		</div>
+	{% endif %}
+</div>
+
+{% schema %}
+	{
+		"name": "Footer",
+		"max_blocks": 5,
+		"blocks": [
+			{
+				"type": "html",
+				"name": "Custom HTML",
+				"settings": [
+					{
+						"type": "text",
+						"id": "heading",
+						"label": "Heading",
+						"default": "Talk about your brand"
+					},
+					{
+						"type": "textarea",
+						"id": "html",
+						"label": "HTML",
+						"default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Block width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "20%",
+								"label": "20%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "66%",
+								"label": "66%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "80%",
+								"label": "80%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "menu",
+				"name": "Custom Menu",
+				"settings": [
+					{
+						"type": "text",
+						"id": "heading",
+						"label": "Heading",
+						"default": "Talk about your brand"
+					},
+					{
+						"type": "link_list",
+						"id": "footer_menus",
+						"default": "footer",
+						"label": "Custom Menu"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Block width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "20%",
+								"label": "20%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "66%",
+								"label": "66%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "80%",
+								"label": "80%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "form",
+				"name": "Subscription Form",
+				"settings": [
+					{
+						"type": "text",
+						"id": "heading",
+						"label": "Heading",
+						"default": "Talk about your brand"
+					},
+					{
+						"type": "text",
+						"id": "action_link",
+						"label": "Mailchimp form action URL",
+						"info": "[How to get Mailchimp form action URL?](http://shopify.barrelny.com/where-do-i-find-the-mailchimp-signup-url/)",
+						"default": "#"
+					},
+					{
+						"type": "text",
+						"id": "placeholder",
+						"label": "Placeholder",
+						"default": "Enter your email"
+					},
+					{
+						"type": "html",
+						"id": "content_above",
+						"label": "Content Above"
+					},
+					{
+						"type": "html",
+						"id": "content_below",
+						"label": "Content Below"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Block width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+							{
+								"value": "41%",
+								"label": "41%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "58%",
+								"label": "58%"
+							},
+							{
+								"value": "66%",
+								"label": "66%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "80%",
+								"label": "80%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "image",
+				"name": "Image",
+				"settings": [
+					{
+						"type": "text",
+						"id": "heading",
+						"label": "Heading",
+						"default": "Talk about your brand"
+					},
+					{
+						"type": "image_picker",
+						"id": "image",
+						"label": "Image"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Block width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "20%",
+								"label": "20%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "66%",
+								"label": "66%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "80%",
+								"label": "80%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			}
+		],
+		"settings": [
+			{
+				"type": "html",
+				"id": "copyright",
+				"label": "Copyright",
+				"default": "<p>&copy; 2017 Sellersmith, Inc. All Rights Reserved.</p>"
+			},
+			{
+				"type": "header",
+				"content": "Colors"
+			},
+			{
+				"type": "color",
+				"id": "background",
+				"label": "Background",
+				"default": "#f4f4f4"
+			},
+			{
+				"type": "color",
+				"id": "text",
+				"label": "Text",
+				"default": "#424242"
+			},
+			{
+				"type": "color",
+				"id": "link",
+				"label": "Link",
+				"default": "#424242"
+			}
+		]
+	}
+{% endschema %}

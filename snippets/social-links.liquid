@@ -1,0 +1,31 @@
+{% assign twitter = settings.social_twitter_link %}
+{% assign facebook = settings.social_facebook_link %}
+{% assign googleplus = settings.social_googleplus_link %}
+{% assign pinterest = settings.social_pinterest_link %}
+{% assign instagram = settings.social_instagram_link %}
+{% assign tumblr = settings.social_tumblr_link %}
+{% assign youtube = settings.social_youtube_link %}
+
+<ul class="social-links">
+	{% if twitter != blank %}
+		<li class="social-links__item icon-twitter"><a href="{{ twitter }}"><i class="fa fa-twitter"></i></a></li>
+	{% endif %}
+	{% if facebook != blank %}
+		<li class="social-links__item icon-facebook"><a href="{{ facebook }}"><i class="fa fa-facebook"></i></a></li>
+	{% endif %}
+	{% if pinterest != blank %}
+		<li class="social-links__item icon-pinterest"><a href="{{ pinterest }}"><i class="fa fa-pinterest"></i></a></li>
+	{% endif %}
+	{% if instagram != blank %}
+		<li class="social-links__item icon-instagram"><a href="{{ instagram }}"><i class="fa fa-instagram"></i></a></li>
+	{% endif %}
+	{% if googleplus != blank %}
+		<li class="social-links__item icon-googleplus"><a href="{{ googleplus }}"><i class="fa fa-google-plus"></i></a></li>
+	{% endif %}
+	{% if tumblr != blank %}
+		<li class="social-links__item icon-tumblr"><a href="{{ tumblr }}"><i class="fa fa-tumblr"></i></a></li>
+	{% endif %}
+	{% if youtube != blank %}
+		<li class="social-links__item icon-youtube"><a href="{{ youtube }}"><i class="fa fa-youtube-play"></i></a></li>
+	{% endif %}
+</ul>

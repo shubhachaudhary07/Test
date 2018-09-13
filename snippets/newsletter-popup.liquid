@@ -1,0 +1,29 @@
+<div id="newsletter-popup" class="newsletter-popup mfp-hide is-relative">
+  	{% if settings.christmas_style and settings.newsletter_bg_image %}
+  	<div class="newsletter-popup__image"></div>
+  	{% endif %}
+	<div class="newsletter-popup__content">
+		<div class="newsletter-popup__title center-xs">
+			{% if settings.newsletter_popup_title %}
+			<h2>{{ settings.newsletter_popup_title }}</h2>
+			{% endif %}
+
+			{% if settings.newsletter_popup_subtitle %}
+			<h3>{{ settings.newsletter_popup_subtitle }}</h3>
+			{% endif %}
+		</div>
+		{% form 'customer' %}
+			{{ form.errors | default_errors }}
+			{% if form.posted_successfully? %}
+				<p class="form--success">{{ 'general.newsletter_form.confirmation' | t }}</p>
+			{% else %}
+				<div class="newsletter is-relative">
+					<input type="hidden" name="contact[tags]" value="newsletter">
+					<input type="email" value="{% if customer %}{{ customer.email }}{% endif %}" placeholder="{{ 'general.newsletter_form.email_placeholder' | t }}" name="contact[email]" id="Email" class="newsletter__input" autocorrect="off" autocapitalize="off" required>
+					<button type="submit" class="btn btn--secondary btn-xs--sm" name="commit">{% if settings.newsletter_button_text %}{{ settings.newsletter_button_text }}{% else %}{{ 'general.newsletter_form.submit' | t }}{% endif %}</button>
+				</div>
+				<label for="hideforever"><input type="checkbox" id="hideforever" name="hideforever" class="newsletter__checkbox"><span>&nbsp;</span>Do not show this again.</label>
+			{% endif %}
+		{% endform %}
+	</div>
+</div>

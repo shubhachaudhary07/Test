@@ -1,0 +1,338 @@
+{% if section.settings.top_bar %}
+    <style>
+        #shopify-section-{{section.id}} {
+            background: {{ section.settings.background }};
+            color: {{ section.settings.text }};
+            padding: 10px 15px;
+        }
+        #shopify-section-{{section.id}} * {
+            color: {{ section.settings.text }};
+        }
+        #shopify-section-{{section.id}} a {
+            color: {{ section.settings.link }};
+        }
+        #shopify-section-{{section.id}} a:hover {
+            opacity: .8;
+        }
+        #shopify-section-{{section.id}} ul li {
+            list-style: none;
+            padding: 0 15px;
+        }
+    </style>
+    <div class="container">
+        <div class="row">
+            {% if section.settings.top_bar %}
+                {% if section.blocks.size > 0 %}
+                    {% for block in section.blocks %}
+                        {% case block.settings.width %}
+                            {% when '25%' %}
+                                {%- assign block_width = 'col-xs-6 col-md-3' -%}
+                            {% when '33%' %}
+                                {%- assign block_width = 'col-xs-6 col-md-4' -%}
+                            {% when '50%' %}
+                                {%- assign block_width = 'col-xs-6 col-md-6' -%}
+                            {% when '66%' %}
+                                {%- assign block_width = 'col-xs-6 col-md-8' -%}
+                            {% when '75%' %}
+                                {%- assign block_width = 'col-xs-6 col-md-9' -%}
+                            {% when '100%' %}
+                                {%- assign block_width = 'col-xs-12 col-md-12' -%}
+                        {% endcase %}
+                        <div class="{{ block_width }} {{ block.settings.alignment }}" {{ block.shopify_attributes }}>
+                            <div class="block__{{ block.type }}">
+                                {% case block.type %}
+                                    {% when 'html' %}
+                                        {% if block.settings.html != blank %}
+                                            {{ block.settings.html }}
+                                        {% endif %}
+                                    {% when 'menu' %}
+                                        {%- assign top_menus = block.settings.top_menus -%}
+                                            {% if linklists[top_menus].links.size > 0 %}
+                                                <ul class="inline-list">
+                                                    {% for link in linklists[top_menus].links %}
+                                                        <li>
+                                                            <a href="{{ link.url }}">{{ link.title }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                    {% when 'currency' %}
+                                        {% if settings.show_multiple_currencies %}
+                                            {% include 'currency-picker' %}
+                                        {% endif %}
+                                {% endcase %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+{% schema %}
+{
+    "name": "Top bar",
+    "max_blocks": 3,
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "top_bar",
+            "label": "Show Top bar",
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": "Colors"
+        },
+        {
+            "type": "color",
+            "id": "background",
+            "label": "Background",
+            "default": "#222"
+        },
+        {
+            "type": "color",
+            "id": "text",
+            "label": "Text",
+            "default": "#eee"
+        },
+        {
+            "type": "color",
+            "id": "link",
+            "label": "Link",
+            "default": "#fff"
+        }
+    ],
+    "blocks": [
+        {
+            "type": "html",
+            "name": "Custom HTML",
+            "settings": [
+                {
+                    "type": "html",
+                    "id": "html",
+                    "label": "Content",
+                    "info": "Allowed HTML"
+                },
+                {
+                    "type": "select",
+                    "id": "alignment",
+                    "label": "Text alignment",
+                    "options": [
+                        {
+                            "value": "start-xs",
+                            "label": "Left"
+                        },
+                        {
+                            "value": "center-xs",
+                            "label": "Center"
+                        },
+                        {
+                            "value": "end-xs",
+                            "label": "Right"
+                        }
+                    ],
+                    "default": "start-xs"
+                },
+                {
+                    "type": "select",
+                    "id": "width",
+                    "label": "Block width",
+                    "default": "50%",
+                    "options": [
+                        {
+                            "value": "25%",
+                            "label": "25%"
+                        },
+                        {
+                            "value": "33%",
+                            "label": "33%"
+                        },
+                        {
+                            "value": "50%",
+                            "label": "50%"
+                        },
+                        {
+                            "value": "66%",
+                            "label": "66%"
+                        },
+                        {
+                            "value": "75%",
+                            "label": "75%"
+                        },
+                        {
+                            "value": "100%",
+                            "label": "100%"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "menu",
+            "name": "Custom Menu",
+            "settings": [
+                {
+                    "type": "link_list",
+                    "id": "top_menus",
+                    "default": "footer",
+                    "label": "Custom Menu"
+                },
+                {
+                    "type": "select",
+                    "id": "alignment",
+                    "label": "Text alignment",
+                    "options": [
+                        {
+                            "value": "start-xs",
+                            "label": "Left"
+                        },
+                        {
+                            "value": "center-xs",
+                            "label": "Center"
+                        },
+                        {
+                            "value": "end-xs",
+                            "label": "Right"
+                        }
+                    ],
+                    "default": "start-xs"
+                },
+                {
+                    "type": "select",
+                    "id": "width",
+                    "label": "Block width",
+                    "default": "50%",
+                    "options": [
+                        {
+                            "value": "16%",
+                            "label": "16%"
+                        },
+                        {
+                            "value": "20%",
+                            "label": "20%"
+                        },
+                        {
+                            "value": "25%",
+                            "label": "25%"
+                        },
+                        {
+                            "value": "33%",
+                            "label": "33%"
+                        },
+                        {
+                            "value": "50%",
+                            "label": "50%"
+                        },
+                        {
+                            "value": "75%",
+                            "label": "75%"
+                        },
+                        {
+                            "value": "100%",
+                            "label": "100%"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "currency",
+            "name": "Currency conversion",
+            "settings": [
+                {
+                    "type": "paragraph",
+                    "content": "You need to enable on General settings first"
+                },
+                {
+                    "type": "select",
+                    "id": "alignment",
+                    "label": "Alignment",
+                    "options": [
+                        {
+                            "value": "start-xs",
+                            "label": "Left"
+                        },
+                        {
+                            "value": "center-xs",
+                            "label": "Center"
+                        },
+                        {
+                            "value": "end-xs",
+                            "label": "Right"
+                        }
+                    ],
+                    "default": "start-xs"
+                },
+                {
+                    "type": "select",
+                    "id": "width",
+                    "label": "Block width",
+                    "default": "25%",
+                    "options": [
+                        {
+                            "value": "16%",
+                            "label": "16%"
+                        },
+                        {
+                            "value": "20%",
+                            "label": "20%"
+                        },
+                        {
+                            "value": "25%",
+                            "label": "25%"
+                        },
+                        {
+                            "value": "33%",
+                            "label": "33%"
+                        },
+                        {
+                            "value": "50%",
+                            "label": "50%"
+                        },
+                        {
+                            "value": "75%",
+                            "label": "75%"
+                        },
+                        {
+                            "value": "100%",
+                            "label": "100%"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "default": {
+        "settings": {
+            "top_bar": true
+        },
+        "blocks": [
+            {
+                "type": "menu",
+                "settings": {
+                    "top_menus": "footer",
+                    "width": "25%",
+                    "alignment": "start-xs"
+                }
+            },
+            {
+                "type": "html",
+                "settings": {
+                    "html": "Free shipping all orders over $50",
+                    "width": "50%",
+                    "alignment": "center-xs"
+                }
+            },
+            {
+                "type": "currency",
+                "settings": {
+                    "width": "25%",
+                    "alignment": "end-xs"
+                }
+            }
+        ]
+    }
+}
+{% endschema %}

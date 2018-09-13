@@ -1,0 +1,209 @@
+{% assign background = section.settings.background %}
+{% assign text = section.settings.text %}
+{% assign link = section.settings.link %}
+{% assign container = section.settings.full_width %}
+{% assign margin = section.settings.margin %}
+{% assign padding = section.settings.padding %}
+
+{% if background != blank or text != blank or link != blank or margin != blank or padding != blank %}
+	<style>
+		#shopify-section-{{section.id}} {
+			{% if background != blank %}
+				background: {{ background }};
+			{% endif %}
+
+			{% if text != blank %}
+				color: {{ text }};
+			{% endif %}
+			
+			{% if margin != blank %}
+				margin: {{ margin }};
+			{% endif %}
+
+			{% if padding != blank %}
+				padding: {{ padding }};
+			{% endif %}
+		}
+		
+		{% if link != blank %}
+			#shopify-section-{{section.id}} a {
+				color: {{ link }};
+			}
+		{% endif %}
+	</style>
+{% endif %}
+
+{% unless container %}<div class="container">{% endunless %}
+	{% if section.settings.title != blank %}
+		<div class="section-title center-xs">
+			{% if section.settings.sub_title != blank %}
+				<h4>{{ section.settings.sub_title | escape }}</h4>
+			{% endif %}
+			<h3>{{ section.settings.title | escape }}</h3>
+		</div>
+	{% endif %}
+
+	{% case section.settings.grid %}
+		{% when '2' %}
+			{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-6' -%}
+			{%- assign collection_image_size = '570x570' %}
+			{%- assign collection_image_attr = '570' %}
+		{% when '3' %}
+			{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-4' -%}
+			{%- assign collection_image_size = '370x370' %}
+			{%- assign collection_image_attr = '370' %}
+		{% when '4' %}
+			{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-3' -%}
+			{%- assign collection_image_size = '270x270' %}
+			{%- assign collection_image_attr = '270' %}
+		{% when '6' %}
+			{%- assign grid_item_width = 'col-xs-12 col-sm-6 col-md-2' -%}
+			{%- assign collection_image_size = '170x170' %}
+			{%- assign collection_image_attr = '170' %}
+	{% endcase %}
+
+	{%- assign hide_title = section.settings.hide_title -%}
+
+	<div class="row">
+		{% for block in section.blocks limit: section.blocks.size %}
+			<div class="{{ grid_item_width }}" {{ block.shopify_attributes }}>
+				{%- assign collection = collections[block.settings.collection] -%}
+				{% include 'collection-grid-item', collection_image_size, collection_image_attr, hide_title: hide_title %}
+			</div>
+		{% endfor %}
+	</div>
+
+	{% if section.blocks.size == 0 %}
+		{% include 'no-blocks' %}
+	{% endif %}
+{% unless container %}</div>{% endunless %}
+
+{% schema %}
+	{
+		"name": "Collection list",
+		"max_blocks": 12,
+		"settings": [
+			{
+				"type": "header",
+				"content": "Layout"
+			},
+			{
+				"type": "checkbox",
+				"id": "full_width",
+				"label": "Enable section full-width"
+			},
+			{
+				"type": "text",
+				"id": "margin",
+				"label": "Margin",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "text",
+				"id": "padding",
+				"label": "Padding",
+				"default": "50px 0 30px",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "header",
+				"content": "Content"
+			},
+			{
+				"type": "text",
+				"id": "title",
+				"label": "Heading",
+				"default": "Collection list"
+			},
+			{
+				"type": "text",
+				"id": "sub_title",
+				"label": "Sub heading"
+			},
+			{
+				"type": "select",
+				"id": "grid",
+				"label": "Collections per row",
+				"default": "4",
+				"options": [
+					{
+						"value": "2",
+						"label": "2"
+					},
+					{
+						"value": "3",
+						"label": "3"
+					},
+					{
+						"value": "4",
+						"label": "4"
+					},
+					{
+						"value": "6",
+						"label": "6"
+					}
+				]
+			},
+			{
+				"type": "checkbox",
+				"id": "hide_title",
+				"label": "Hide title"
+			},
+			{
+				"type": "header",
+				"content": "Colors"
+			},
+			{
+				"type": "color",
+				"id": "background",
+				"label": "Background"
+			},
+			{
+				"type": "color",
+				"id": "link",
+				"label": "Link"
+			},
+			{
+				"type": "color",
+				"id": "text",
+				"label": "Text"
+			}
+		],
+		"blocks": [
+			{
+				"type": "featured_collection",
+				"name": "Collection",
+				"settings": [
+					{
+						"label": "Collection",
+						"id": "collection",
+						"type": "collection"
+					}
+				]
+			}
+		],
+		"presets": [
+			{
+				"name": "Collection list",
+				"category": "Collection",
+				"settings": {
+					"grid": "3"
+				},
+				"blocks": [
+					{
+						"type": "featured_collection"
+					},
+					{
+						"type": "featured_collection"
+					},
+					{
+						"type": "featured_collection"
+					},
+					{
+						"type": "featured_collection"
+					}
+				]
+			}
+		]
+	}
+{% endschema %}

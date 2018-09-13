@@ -1,0 +1,73 @@
+{% assign found_option = false %}
+{% assign option_index = 0 %}
+{% assign is_color = false %}
+{% assign is_select = false %}
+{% assign is_image = false %}
+{% assign is_label = false %}
+{% assign color_option = settings.color_type | remove: "," | downcase %}
+{% assign image_option = settings.image_type | remove: "," | downcase %}
+{% assign label_option = settings.label_type | remove: "," | downcase %}
+
+{% for option in product.options %}
+	{% if option == swatch %}
+		{% assign found_option = true %}
+		{% assign option_index = forloop.index0 %}
+		{% assign downcased_option = swatch | downcase %}
+
+		{% if color_option contains downcased_option %}
+			{% assign is_color = true %}
+		{% endif %}
+
+		{% if image_option contains downcased_option %}
+			{% assign is_image = true %}
+		{% endif %}
+
+		{% if label_option contains downcased_option %}
+			{% assign is_label = true %}
+		{% endif %}
+	{% endif %}
+{% endfor %}
+
+<div class="swatch {{ settings.color_swatch_style }}" data-option-index="{{ option_index }}">
+	<h4 class="swatch__title upc">{{ swatch }}</h4>
+	<div class="swatch__value is-flex">
+		{% assign values = '' %}
+
+		{% unless is_color or is_label or is_image %}
+			<select class="swatch__item">
+		{% endunless %}
+		{% for variant in product.variants %}
+			{% assign value = variant.options[option_index] %}
+			{% unless values contains value %}
+				{% assign values = values | join: ',' %}
+				{% assign values = values | append: ',' | append: value %}
+				{% assign values = values | split: ',' %}
+				
+				{% if is_color or is_label or is_image %}
+				<div data-value="{{ value | escape }}" class="swatch__item is-relative {% if variant.available %}available{% else %}sold--out{% endif %}">
+					<span class="tooltip is-absolute">{{ value }}</span>
+					<input
+						id="swatch-{{ option_index }}-{{ value | handle }}"
+						type="radio"
+						name="option-{{ option_index }}"
+						value="{{ value | escape }}"{% if forloop.first %} checked{% endif %} {% unless variant.available %}disabled{% endunless %} />
+
+					{% if is_color %}
+						<label for="swatch-{{ option_index }}-{{ value | handle }}" style="background-color: {{ value | split: ' ' | last | handle }};"></label>
+					{% elsif is_image %}
+						<label for="swatch-{{ option_index }}-{{ value | handle }}" style="background: url({{ variant.image.src | img_url: '64x' }}) no-repeat center center / cover;"></label>
+					{% elsif is_label %}
+						<label for="swatch-{{ option_index }}-{{ value | handle }}">{{ value }}</label>
+					{% endif %}
+				</div>
+				{% else %}
+					<option value="{{ value | handle }}">{{ value | handle }}</option>
+				{% endif %}
+			{% endunless %}
+		{% endfor %}
+
+		{% unless is_color or is_label or is_image %}
+			</select>
+		{% endunless %}
+	</div>
+</div>

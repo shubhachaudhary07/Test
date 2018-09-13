@@ -1,0 +1,61 @@
+<script>
+  var selectCallback = function(variant, selector) {
+    theme.multipleVariants({
+      money_format: "{{ shop.money_format }}",
+      variant: variant,
+      selector: selector
+    });
+
+    // BEGIN SWATCHES
+    if (variant) {
+      var form = jQuery('#' + selector.domIdPrefix).closest('form');
+      for (var i=0,length=variant.options.length; i<length; i++) {
+        radioButton = form.find('.swatch[data-option-index="' + i + '"] :radio[value="' + variant.options[i].replace(/(['"])/g, "\\$1") +'"]');
+        if (radioButton.size()) {
+          radioButton.get(0).checked = true;
+        }
+      }
+    }
+
+  };
+
+  jQuery(function($) {
+    new Shopify.OptionSelectors('productSelect', {
+      product: {{ product | json }},
+      onVariantSelected: selectCallback,
+      enableHistoryState: true
+    });
+
+    // Add label if only one product option and it isn't 'Title'. Could be 'Size'.
+    {% if product.options.size == 1 and product.options.first != 'Title' %}
+      $('.selector-wrapper:eq(0)').prepend('<h4 class="swatch__title upc">{{ product.options.first | escape }}</h4>');
+    {% endif %}
+
+  });
+
+  jQuery(function($) {
+    $('.swatch :radio').change(function() {
+      var optionIndex  = $( this ).closest('.swatch').attr('data-option-index');
+      var optionValue  = $( this ).val();
+
+      $(this)
+        .closest('form')
+        .find('.single-option-selector')
+        .eq(optionIndex)
+        .val(optionValue)
+        .trigger('change');
+    });
+
+    $('.swatch select').change(function() {
+      var optionIndex  = $( this ).closest('.swatch').attr('data-option-index');
+      var optionSelect = $( this ).val();
+
+      $(this)
+        .closest('form')
+        .find('.single-option-selector')
+        .eq(optionIndex)
+        .val(optionSelect)
+        .trigger('change');
+    });
+  });
+</script>

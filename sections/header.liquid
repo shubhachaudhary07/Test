@@ -1,0 +1,295 @@
+{%- assign header_style = section.settings.header_style -%}
+{% assign mega_menu     = section.settings.mega_menu %}
+{% assign logo_align    = section.settings.logo_alignment %}
+<style>
+	.header {
+		background: {{ section.settings.background }};
+		color: {{ section.settings.text }};
+	}
+	.header p,
+	.header svg,
+	.header select {
+		color: {{ section.settings.text }};
+	}
+	.header a {
+		color: {{ section.settings.link }};
+	}
+	.header a:hover {
+		opacity: .8;
+	}
+	.header ul li {
+		list-style: none;
+	}
+	{% if header_style == 'outside' %}
+		.header__nav {
+			background: {{ section.settings.nav_background }};
+		}
+	{% endif %}
+
+	.nav__item > a {
+		color: {{ section.settings.nav_link }};
+	}
+	.nav__item > a:hover {
+		color: {{ section.settings.nav_hover }};
+	}
+	@media only screen and (max-width: 768px) {
+		.mobile-nav,
+		.nav__dropdown {
+			background: {{ section.settings.subnav_background }};
+			color: {{ section.settings.subnav_hover }};
+		}
+		.mobile-nav .mobile-nav__item-link,
+		.nav__dropdown .product-card__title a,
+		.nav__dropdown .sub-nav__link {
+			color: {{ section.settings.subnav_link }};
+		}
+		.nav__dropdown .sub-nav__title,
+		.nav__dropdown .product-card__title a:hover,
+		.nav__dropdown .sub-nav__link:hover {
+			color: {{ section.settings.subnav_hover }};
+		}
+	}
+
+	{% if section.settings.logo != blank %}
+		.header__logo-image {
+			max-width: {{ section.settings.logo_max_width }}px;
+		}
+	{% endif %}
+</style>
+
+{% include 'search-bar' %}
+
+<div class="header header--{{ header_style }} is-relative" data-section-id="{{ section.id }}" data-section-type="header-section">
+	<div class="container">
+		<div class="is-flex middle-xs {{ logo_align }}-md{% if logo_align == 'center' %} is-relative{% endif %}">
+			<div class="header__logo">
+				{% if template.name == 'index' %}
+					<h1 itemscope itemtype="http://schema.org/Organization">
+						{% include 'logo' %}
+					</h1>
+				{% else %}
+					<div itemscope itemtype="http://schema.org/Organization">
+						{% include 'logo' %}
+					</div>
+				{% endif %}
+			</div>
+			{% if header_style == 'inside' %}
+				<div class="header__nav {{ section.settings.nav_alignment }}-md">
+					{% include 'nav-desktop', mega_menu: mega_menu %}
+					{% include 'nav-mobile' %}
+				</div>
+			{% endif %}
+			<div class="header__icons{% if logo_align == 'center' and header_style == 'outside' %} is-absolute{% endif %}">
+				<div class="is-flex end-xs">
+					<a href="#" class="header__search-trigger">
+						{% include 'icon-search' %}
+					</a>
+
+					{% if shop.customer_accounts_enabled %}
+						{% if customer %}
+							<a href="/account" class="header__account">
+								{% include 'icon-user' %}
+							</a>
+						{% else %}
+							<a href="/account/login" class="header__account">
+								{% include 'icon-login' %}
+							</a>
+						{% endif %}
+					{% endif %}
+
+					<a href="/cart" class="header__cart is-relative">
+						{% include 'icon-cart' %}
+						<span class="header__cart-count is-circle is-absolute {% if cart.item_count == 0 %}hide-xs{% endif %}">{{ cart.item_count }}</span>
+					</a>
+
+					{% if section.settings.show_currency %}
+						<div class="hide-xs visible-md">{% include 'currency-picker' %}</div>
+					{% endif %}
+
+					{% unless linklists[section.settings.main_linklist] == blank %}
+						<a href="#" class="hide-md visible-xs mobile-nav-trigger">
+							{% include 'icon-hamburger' %}
+						</a>
+					{% endunless %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% if header_style == 'outside' %}
+		<div class="header__nav {{ section.settings.nav_alignment }}-md">
+			<div class="container">
+				{% include 'nav-desktop', mega_menu: mega_menu %}
+				{% include 'nav-mobile' %}
+			</div>
+		</div>
+	{% endif %}
+</div>
+
+{% schema %}
+{
+	"name": "Header",
+	"settings": [
+		{
+			"type": "header",
+			"content": "Logo"
+		},
+		{
+			"type": "image_picker",
+			"id": "logo",
+			"label": "Logo image"
+		},
+		{
+			"type": "text",
+			"id": "logo_max_width",
+			"label": "Custom logo width (in pixels)",
+			"default": "100"
+		},
+		{
+			"type": "select",
+			"id": "logo_alignment",
+			"label": "Logo alignment",
+			"default": "between",
+			"info": "This option only affect to Header with navigation below layout",
+			"options": [
+				{
+					"value": "between",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Header"
+		},
+		{
+			"type": "select",
+			"id": "header_style",
+			"label": "Header layout",
+			"default": "inside",
+			"options": [
+				{
+					"value": "inside",
+					"label": "Inside Navigation"
+				},
+				{
+					"value": "outside",
+					"label": "Outside Navigation"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Navigation"
+		},
+		{
+			"type": "checkbox",
+			"id": "mega_menu",
+			"label": "Enable mega menu"
+		},
+		{
+			"type": "link_list",
+			"id": "main_linklist",
+			"label": "Menu",
+			"default": "main-menu"
+		},
+		{
+			"type": "select",
+			"id": "nav_alignment",
+			"label": "Menu alignment",
+			"default": "center",
+			"options": [
+				{
+					"value": "start",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				},
+				{
+					"value": "end",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Currency conversion",
+			"info": "You need to enable on General settings first"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_currency",
+			"label": "Show Currency conversion",
+			"default": false
+		},
+		{
+			"type": "header",
+			"content": "Header Colors"
+		},
+		{
+			"type": "color",
+			"id": "background",
+			"label": "Background",
+			"default": "#222"
+		},
+		{
+			"type": "color",
+			"id": "text",
+			"label": "Text",
+			"default": "#eee"
+		},
+		{
+			"type": "color",
+			"id": "link",
+			"label": "Link",
+			"default": "#fff"
+		},
+		{
+			"type": "header",
+			"content": "Navigation Colors"
+		},
+		{
+			"type": "color",
+			"id": "nav_background",
+			"label": "Navigation Background",
+			"default": "#222"
+		},
+		{
+			"type": "color",
+			"id": "nav_link",
+			"label": "Menu item",
+			"default": "#fff"
+		},
+		{
+			"type": "color",
+			"id": "nav_hover",
+			"label": "Menu item hover",
+			"default": "#eee"
+		},
+		{
+			"type": "color",
+			"id": "subnav_background",
+			"label": "Sub-menu Background",
+			"default": "#fff"
+		},
+		{
+			"type": "color",
+			"id": "subnav_link",
+			"label": "Sub-menu item",
+			"default": "#000"
+		},
+		{
+			"type": "color",
+			"id": "subnav_hover",
+			"label": "Sub-menu item hover",
+			"default": "#333"
+		}
+	]
+}
+{% endschema %}

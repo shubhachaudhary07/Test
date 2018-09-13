@@ -1,0 +1,20 @@
+{%- assign compare_at_price = product.compare_at_price -%}
+{%- assign price = product.price -%}
+{%- assign price_varies = product.price_varies -%}
+{%- assign available = product.available -%}
+{%- assign money_price = price | money -%}
+
+{{ price_content }}
+
+<div class="product__price">
+	{% if on_sale %}
+		<s class="product__price--original" itemprop="price" content="{{ price | money_without_currency }}">{{ compare_at_price | money }}</s>
+		<span class="product__price--sale">{{ money_price }}</span>
+	{% else %}
+		{% if price_varies %}
+			{{ product.price_min | money }} - {{ product.price_max | money }}
+		{% else %}
+			<span class="product__price--original" itemprop="price" content="{{ price }}">{{ money_price }}</span>
+		{% endif %}
+	{% endif %}
+</div>

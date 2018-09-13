@@ -1,0 +1,43 @@
+<!-- /templates/customers/register.liquid -->
+
+<div class="page has-title">
+	<div class="container container--xs">
+		<div class="head">
+			<div class="container">
+				<div class="head__title center-xs">
+					<h1 class="section-header__title">{{ 'customer.register.title' | t }}</h1>
+				</div>
+			</div>
+		</div>
+		{% form 'create_customer' %}
+
+			{{ form.errors | default_errors }}
+			
+			<p>
+				<input type="text" name="customer[first_name]" id="FirstName" class="full" placeholder="{{ 'customer.register.first_name' | t }}" {% if form.first_name %}value="{{ form.first_name }}"{% endif %} autocapitalize="words" autofocus>
+			</p>
+			
+			<p>
+				<input type="text" name="customer[last_name]" id="LastName" class="full" placeholder="{{ 'customer.register.last_name' | t }}" {% if form.last_name %}value="{{ form.last_name }}"{% endif %} autocapitalize="words">
+			</p>
+			
+			<p>
+				<input type="email" name="customer[email]" id="Email" class="full{% if form.errors contains 'email' %} error{% endif %}" placeholder="{{ 'customer.register.email' | t }}" {% if form.email %} value="{{ form.email }}"{% endif %} autocorrect="off" autocapitalize="off">
+			</p>
+			
+			<p>
+				<input type="password" name="customer[password]" id="CreatePassword" class="full{% if form.errors contains 'password' %} error{% endif %}" placeholder="{{ 'customer.register.password' | t }}">
+			</p>
+
+			<p>
+				<input type="submit" value="{{ 'customer.register.submit' | t }}" class="btn btn--primary btn-xs--md full">
+			</p>
+
+			<div class="center-xs is-flex form__link">
+				<a href="/account/login">{{ 'customer.login.title' | t }}</a>
+				<a href="{{ shop.url }}">{{ 'customer.register.cancel' | t }}</a>
+			</div>
+
+		{% endform %}
+	</div>
+</div>

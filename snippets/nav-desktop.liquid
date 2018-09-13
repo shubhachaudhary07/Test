@@ -1,0 +1,52 @@
+{% unless nav_alignment %}
+  {%- assign nav_alignment = "left" -%}
+{% endunless %}
+
+<ul class="nav hide-xs visible-md" id="AccessibleNav">
+	{% for link in linklists[section.settings.main_linklist].links %}
+		{% assign child_list_handle = link.title | handleize %}
+
+		{%- assign mega_type = 'normal' -%}
+
+		{% if mega_menu %}
+			{% for childlink in linklists[child_list_handle].links %}
+				{%- assign subchild_list_handle = childlink.title | handleize -%}
+				{% unless link.type == 'collection_link' %}
+				{% if linklists[subchild_list_handle].links != blank %}
+					{% assign mega_type = 'column' %}
+				{% endif %}
+				{% endunless %}
+			{% endfor %}
+
+			{% if link.type == 'collection_link' %}
+				{%- assign mega_type = 'product' -%}
+			{% endif %}
+		{% endif %}
+
+		{% if linklists[child_list_handle].links != blank %}
+			<li class="nav__item{% if link.active %} nav__item--active{% endif %}{% unless mega_type == 'normal' %} nav__item--mega{% endunless %} nav__item--{{ mega_type }}">
+				<a href="{{ link.url }}" class="nav__link">{{ link.title }} <i class="fa fa-angle-down"></i></a>
+				<div class="nav__dropdown hidden is-absolute">
+					{% if mega_type == 'product' %}
+						{% include 'nav-sub-product', show_title: true, show_links: true, show_products: true %}
+					{% elsif mega_type == 'column' %}
+						{% include 'nav-sub-column' %}
+					{% else %}
+						<ul>
+							{% for childlink in linklists[child_list_handle].links %}
+								<li>
+									<a href="{{ childlink.url }}"
+									   class="sub-nav__link">{{ childlink.title | escape }}</a>
+								</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				</div>
+			</li>
+		{% else %}
+			<li class="nav__item{% if link.active %} nav--active{% endif %}">
+				<a href="{{ link.url }}" class="nav__link">{{ link.title }}</a>
+			</li>
+		{% endif %}
+	{% endfor %}
+</ul>

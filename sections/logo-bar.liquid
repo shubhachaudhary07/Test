@@ -1,0 +1,192 @@
+{% assign container = section.settings.full_width %}
+{% assign margin = section.settings.margin %}
+{% assign padding = section.settings.padding %}
+
+{% if margin != blank or padding != blank %}
+	<style>
+		#shopify-section-{{section.id}} {
+			{% if margin != blank %}
+				margin: {{ margin }};
+			{% endif %}
+
+			{% if padding != blank %}
+				padding: {{ padding }};
+			{% endif %}
+		}
+	</style>
+{% endif %}
+
+{% unless container %}<div class="container">{% endunless %}
+	{% if section.settings.title != blank %}
+		<div class="section-title center-xs">
+			{% if section.settings.sub_title != blank %}
+				<h4>{{ section.settings.sub_title | escape }}</h4>
+			{% endif %}
+			<h3>{{ section.settings.title | escape }}</h3>
+		</div>
+	{% endif %}
+
+	{% case section.settings.grid %}
+		{% when '2' %}
+			{%- assign grid_item_width = 'col-xs-6 col-sm-4 col-md-6' -%}
+		{% when '3' %}
+			{%- assign grid_item_width = 'col-xs-6 col-sm-4 col-md-4' -%}
+		{% when '4' %}
+			{%- assign grid_item_width = 'col-xs-6 col-sm-4 col-md-3' -%}
+		{% when '6' %}
+			{%- assign grid_item_width = 'col-xs-6 col-sm-4 col-md-2' -%}
+	{% endcase %}
+
+	{% assign carousel = section.settings.carousel %}
+	{% if carousel %}
+		{% assign logo_bar_class = 'slick-slider' %}
+	{% else %}
+		{% assign logo_bar_class = 'row' %}
+	{% endif %}
+
+	{% if section.blocks.size > 0 %}
+		<div class="{{ logo_bar_class }}" {% if carousel %}data-slick='{"infinite": true, "dots": false, "slidesToShow": "{{ section.settings.grid }}", "arrows": false }'{% endif %}>
+			{% for block in section.blocks %}
+				<div class="{{ grid_item_width }}" {{ block.shopify_attributes }}>
+					<div class="brand">
+						{% if block.settings.link != blank %}
+							<a href="{{ block.settings.link }}" class="logo-bar__link">
+								{% endif %}
+								{% if block.settings.image != blank %}
+									{{ block.settings.image | img_url: '160x160' | img_tag: section.settings.image.alt, 'logo-bar__image' }}
+								{% else %}
+									{{ 'logo' | placeholder_svg_tag: 'placeholder-svg' }}
+								{% endif %}
+								{% if block.settings.link != blank %}
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	{% endif %}
+
+	{% if section.blocks.size == 0 %}
+		{% include 'no-blocks' %}
+	{% endif %}
+{% unless container %}</div>{% endunless %}
+
+{% schema %}
+	{
+		"name": "Logo list",
+		"max_blocks": 20,
+		"settings": [
+			{
+				"type": "header",
+				"content": "Layout"
+			},
+			{
+				"type": "checkbox",
+				"id": "full_width",
+				"label": "Enable section full-width"
+			},
+			{
+				"type": "text",
+				"id": "margin",
+				"label": "Margin",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "text",
+				"id": "padding",
+				"label": "Padding",
+				"default": "50px 0 30px",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "header",
+				"content": "Content"
+			},
+			{
+				"type": "text",
+				"id": "title",
+				"label": "Heading",
+				"default": "Logo list"
+			},
+			{
+				"type": "text",
+				"id": "sub_title",
+				"label": "Sub heading"
+			},
+			{
+				"type": "select",
+				"id": "grid",
+				"label": "Logos per row",
+				"default": "6",
+				"options": [
+					{
+						"value": "2",
+						"label": "2"
+					},
+					{
+						"value": "3",
+						"label": "3"
+					},
+					{
+						"value": "4",
+						"label": "4"
+					},
+					{
+						"value": "6",
+						"label": "6"
+					}
+				]
+			},
+			{
+				"type": "checkbox",
+				"id": "carousel",
+				"label": "Enable carousel"
+			}
+		],
+		"blocks": [
+			{
+				"type": "logo_image",
+				"name": "Logo",
+				"settings": [
+					{
+						"type": "image_picker",
+						"id": "image",
+						"label": "Image"
+					},
+					{
+						"type": "text",
+						"id": "link",
+						"label": "Link",
+						"info": "Optional"
+					}
+				]
+			}
+		],
+		"presets": [
+			{
+				"name": "Logo list",
+				"category": "Image",
+				"blocks": [
+					{
+						"type": "logo_image"
+					},
+					{
+						"type": "logo_image"
+					},
+					{
+						"type": "logo_image"
+					},
+					{
+						"type": "logo_image"
+					},
+					{
+						"type": "logo_image"
+					},
+					{
+						"type": "logo_image"
+					}
+				]
+			}
+		]
+	}
+{% endschema %}

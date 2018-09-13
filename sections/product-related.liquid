@@ -1,0 +1,148 @@
+{% if section.settings.show_related_products == true %}
+	{% assign number_of_related_products_per_row = section.settings.related_grid_num %}
+	{% assign limit = section.settings.related_grid_row %}
+	{% assign heading = section.settings.related_title %}
+	{% assign same_vendor = false %}
+	{% assign same_type = false %}
+	{% assign exclusions = 'frontpage,all' | split: ',' %}
+
+	{% if product.metafields.c_f['Related Products'] %}
+		{% assign collection = collections[product.metafields.c_f['Related Products']] %}
+	{% endif %}
+
+	{% assign found_a_collection = false %}
+
+	{% if collection and collection.all_products_count > 1 %}
+		{% unless exclusions contains collection.handle %}
+			{% assign found_a_collection = true %}
+		{% endunless %}
+	{% endif %}
+
+	{% unless found_a_collection %}
+		{% for c in product.collections %}
+			{% unless exclusions contains c.handle or c.all_products_count < 2 %}
+				{% assign found_a_collection = true %}
+				{% assign collection = c %}
+				{% break %}
+			{% endunless %}
+		{% endfor %}
+	{% endunless %}
+
+	{% if found_a_collection %}
+		{% assign current_product = product %}
+
+		{% case number_of_related_products_per_row %}
+			{% when '2' %}
+				{% assign grid_item_width = 'col-xs-12 col-sm-6 col-md-6' %}
+
+			{% when '3' %}
+				{% assign grid_item_width = 'col-xs-12 col-sm-6 col-md-4' %}
+
+			{% when '4' %}
+				{% assign grid_item_width = 'col-xs-12 col-sm-6 col-md-3' %}
+
+			{% when '6' %}
+				{% assign grid_item_width = 'col-xs-12 col-sm-6 col-md-2' %}
+		{% endcase %}
+
+
+	 	{% capture related_items %}
+			{% for product in collection.products limit: limit %}
+				{% unless product.handle == current_product.handle %}
+					{% unless same_vendor and current_product.vendor != product.vendor %}
+						{% unless same_type and current_product.type != product.type %}
+							<div class="{{ grid_item_width }}">
+								{% include 'product-grid-item' %}
+							</div>
+			   			{% endunless %}
+					{% endunless %}
+		  		{% endunless %}
+			{% endfor %}
+		{% endcapture %}
+
+		{% assign related_items = related_items | trim %}
+		
+		{% unless related_items == blank %}
+			<div class="container" data-section-id="related-products" data-section-type="related-products-section" data-enable-history-state="true">
+				{% unless heading == blank %}
+					<h3>{{ heading | upcase }}</h3>
+				{% endunless %}
+				<div class="row slick-slider related-products manual-init" data-slick='{ "slidesToShow": {{ number_of_related_products_per_row }}, "autoplay": false, "infinite": true, "dots": true, "arrows": false }'>
+					{{ related_items }}
+				</div>
+			</div>
+		{% endunless %}
+	{% endif %}
+{% endif %}
+
+{% schema %}
+	{
+		"name": "Extra products",
+		"settings": [
+			{
+				"type": "checkbox",
+				"id": "show_related_products",
+				"label": "Show related products",
+				"default": true
+			},
+			{
+				"id": "related_title",
+				"type": "text",
+				"label": "Section title",
+				"default": "Other fine products"
+			},
+			{
+				"type": "select",
+				"id": "related_grid_num",
+				"label": "Products per row",
+				"default": "4",
+				"options": [
+					{
+						"value": "2",
+						"label": "2"
+					},
+					{
+						"value": "3",
+						"label": "3"
+					},
+					{
+						"value": "4",
+						"label": "4"
+					},
+					{
+						"value": "6",
+						"label": "6"
+					}
+				]
+			},
+			{
+				"type": "select",
+				"id": "related_grid_row",
+				"label": "Number of item to show",
+				"default": "6",
+				"options": [
+					{
+						"value": "4",
+						"label": "4"
+					},
+					{
+						"value": "6",
+						"label": "6"
+					},
+					{
+						"value": "8",
+						"label": "8"
+					},
+					{
+						"value": "10",
+						"label": "10"
+					},
+					{
+						"value": "12",
+						"label": "12"
+					}
+				]
+			}
+		]
+	}
+{% endschema %}

@@ -1,0 +1,899 @@
+{% assign background = section.settings.background %}
+{% assign text = section.settings.text %}
+{% assign link = section.settings.link %}
+{% assign container = section.settings.full_width %}
+{% assign margin = section.settings.margin %}
+{% assign padding = section.settings.padding %}
+
+{% if background != blank or text != blank or link != blank or margin != blank or padding != blank %}
+	<style>
+		#shopify-section-{{section.id}} {
+			{% if background != blank %}
+				background: {{ background }};
+			{% endif %}
+
+			{% if text != blank %}
+				color: {{ text }};
+			{% endif %}
+			
+			{% if margin != blank %}
+				margin: {{ margin }};
+			{% endif %}
+
+			{% if padding != blank %}
+				padding: {{ padding }};
+			{% endif %}
+		}
+		
+		{% if link != blank %}
+			#shopify-section-{{section.id}} a {
+				color: {{ link }};
+			}
+		{% endif %}
+	</style>
+{% endif %}
+
+<div data-section-id="{{ section.id }}" data-section-type="custom-content-section">
+	
+	{% unless container %}<div class="container">{% endunless %}
+		{% if section.settings.title != blank %}
+			<div class="section-title center-xs">
+				<h3>{{ section.settings.title | escape }}</h3>
+			</div>
+		{% endif %}
+
+		<div class="row">
+			{% for block in section.blocks %}
+				{% case block.settings.width %}
+					{% when '16%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-2' -%}
+						{%- assign image_size = '300x300' -%}
+					{% when '25%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-3' -%}
+						{%- assign image_size = '400x400' -%}
+					{% when '33%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-4' -%}
+						{%- assign image_size = '450x450' -%}
+					{% when '42%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-5' -%}
+						{%- assign image_size = '450x450' -%}
+					{% when '50%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-6' -%}
+						{%- assign image_size = '600x600' -%}
+					{% when '58%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-7' -%}
+						{%- assign image_size = '720x720' -%}
+					{% when '67%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-8' -%}
+						{%- assign image_size = '810x810' -%}
+					{% when '75%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-9' -%}
+						{%- assign image_size = '810x810' -%}
+					{% when '84%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-10' -%}
+						{%- assign image_size = '810x810' -%}
+					{% when '100%' %}
+						{%- assign block_width = 'col-xs-12 col-sm-6 col-md-12' -%}
+						{%- assign image_size = '1090x1090' -%}
+				{% endcase %}
+				<div class="{{ block_width }}" {{ block.shopify_attributes }}>
+					<div class="custom custom__{{ block.type }}">
+						{% case block.type %}
+							{% when 'image' %}
+								{% if block.settings.image != blank %}
+									{%- assign image_alt = block.settings.image.alt -%}
+									{%- assign image_link = block.settings.url -%}
+									{%- assign image_effect = block.settings.effect -%}
+									{% if image_effect %}<div class="is-relative image__effect--{{ image_effect }}">{% endif %}
+
+										{% if image_link %}<a href="{{ image_link }}">{% endif %}
+											{{ block.settings.image | img_url: 'master' | img_tag: image_alt }}
+										{% if image_link %}</a>{% endif %}
+
+									{% if image_effect %}</div>{% endif %}
+								{% else %}
+									{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+								{% endif %}
+
+							{% when 'text' %}
+								{% if block.settings.title != blank %}
+									<h3>{{ block.settings.title }}</h3>
+								{% endif %}
+								{% if block.settings.text != blank %}
+									{{ block.settings.text }}
+								{% endif %}
+
+							{% when 'video' %}
+								<div class="video-wrapper is-relative">
+									{% if block.settings.video_url == blank %}
+										<iframe src="//www.youtube.com/embed/_9VUPq3SxOc?rel=0&showinfo=0&vq=720" width="850"
+												height="480" frameborder="0" allowfullscreen></iframe>
+									{% else %}
+										{% if block.settings.video_url.type == "youtube" %}
+											<iframe src="//www.youtube.com/embed/{{ block.settings.video_url.id }}?rel=0&showinfo=0&vq=720"
+													width="850" height="480" frameborder="0" allowfullscreen></iframe>
+										{% endif %}
+										{% if block.settings.video_url.type == "vimeo" %}
+											<iframe src="//player.vimeo.com/video/{{ block.settings.video_url.id }}?byline=0&portrait=0&badge=0"
+													width="850" height="480" frameborder="0" allowfullscreen></iframe>
+										{% endif %}
+									{% endif %}
+								</div>
+
+							{% when 'product' %}
+								{%- assign product = all_products[block.settings.product] -%}
+								{% include 'product-grid-item', image_width: image_size %}
+
+							{% when 'products' %}
+								{%- assign collection = collections[block.settings.products] -%}
+								{% case block.settings.limit %}
+									{% when '1' %}
+										{%- assign columns = 'col-xs-12 col-sm-6 col-md-12' -%}
+									{% when '2' %}
+										{%- assign columns = 'col-xs-12 col-sm-6 col-md-6' -%}
+									{% when '3' %}
+										{%- assign columns = 'col-xs-12 col-sm-6 col-md-4' -%}
+									{% when '4' %}
+										{%- assign columns = 'col-xs-12 col-sm-6 col-md-3' -%}
+								{% endcase %}
+								{%- assign limit = block.settings.limit -%}
+								<div class="row">
+									{% for product in collection.products limit: limit %}
+										<div class="{{ columns }}">
+											{% include 'product-grid-item', image_width: image_size %}
+										</div>
+									{% else %}
+										{% for i in (1..limit) %}
+											<div class="{{ columns }}">
+												{% include 'product-grid-item', image_width: image_size %}
+											</div>
+										{% endfor %}
+									{% endfor %}
+								</div>
+
+							{% when 'collection' %}
+								{%- assign collection = collections[block.settings.collection] -%}
+								{% include 'collection-grid-item', collection_image_size: image_size %}
+
+							{% when 'html' %}
+								{% if block.settings.code != blank %}
+									{{ block.settings.code }}
+								{% endif %}
+
+							{% when 'instagram' %}
+								{%- assign user_id = block.settings.user_id -%}
+								{%- assign access_token = block.settings.access_token -%}
+								{%- assign instagram_limit = block.settings.instagram_limit -%}
+								{%- assign column = block.settings.instagram_grid -%}
+								{%- assign spacing = block.settings.instagram_spacing -%}
+								{%- assign slider = block.settings.instagram_slider -%}
+
+								{% if slider == true %}
+									{%- assign block_class = 'slick-slider manual-init' -%}
+								{% else %}
+									{%- assign block_class = 'row' -%}
+								{% endif %}
+
+								{% unless spacing == "0" %}
+									<style>
+										.instagram--{{ block.id }} {
+											margin: 0 -{{ spacing | divided_by: 2 }}px;
+										}
+										.instagram--{{ block.id }} [class*="instagram__item--"] {
+											padding: {{ spacing | divided_by: 2 }}px;
+										}
+									</style>
+								{% endunless %}
+								<div class="instagram instagram--{{ block.id }} {{ block_class }}"
+									 data-block-id="{{ block.id }}" data-access-token="{{ access_token }}"
+									 data-limit="{{ instagram_limit }}" data-grid="{{ column }}"
+									 {% if slider == true %}data-slick='{"slidesToShow": {{ column }}, "infinite": true }'{% endif %}></div>
+						{% endcase %}
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+
+		{% if section.blocks.size == 0 %}
+			{% include 'no-blocks' %}
+		{% endif %}
+	{% unless container %}</div>{% endunless %}
+</div>
+
+{% schema %}
+	{
+		"name": "Custom content",
+		"settings": [
+			{
+				"type": "header",
+				"content": "Layout"
+			},
+			{
+				"type": "checkbox",
+				"id": "full_width",
+				"label": "Enable section full-width"
+			},
+			{
+				"type": "text",
+				"id": "margin",
+				"label": "Margin",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "text",
+				"id": "padding",
+				"label": "Padding",
+				"default": "50px 0 30px",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "header",
+				"content": "Content"
+			},
+			{
+				"type": "text",
+				"id": "title",
+				"label": "Heading",
+				"default": "Custom content"
+			},
+			{
+				"type": "header",
+				"content": "Colors"
+			},
+			{
+				"type": "color",
+				"id": "background",
+				"label": "Background"
+			},
+			{
+				"type": "color",
+				"id": "link",
+				"label": "Link"
+			},
+			{
+				"type": "color",
+				"id": "text",
+				"label": "Text"
+			}
+		],
+		"blocks": [
+			{
+				"type": "text",
+				"name": "Text",
+				"settings": [
+					{
+						"type": "text",
+						"id": "title",
+						"label": "Heading",
+						"default": "Talk about your brand"
+					},
+					{
+						"type": "richtext",
+						"id": "text",
+						"label": "Text",
+						"default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Container width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "20%",
+								"label": "20%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "67%",
+								"label": "67%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "80%",
+								"label": "80%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "image",
+				"name": "Image",
+				"settings": [
+					{
+						"type": "image_picker",
+						"id": "image",
+						"label": "Image"
+					},
+					{
+						"type": "select",
+						"id": "effect",
+						"label": "Effect",
+						"default": "none",
+						"options": [
+							{
+								"value": "none",
+								"label": "none"
+							},
+							{
+								"value": "1",
+								"label": "Mask"
+							},
+							{
+								"value": "2",
+								"label": "Black and white"
+							}
+						]
+					},
+					{
+						"type": "url",
+						"id": "url",
+						"label": "Image Link"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Container width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+
+							{
+								"value": "42%",
+								"label": "42%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "58%",
+								"label": "58%"
+							},
+							{
+								"value": "67%",
+								"label": "67%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "video",
+				"name": "Video",
+				"settings": [
+					{
+						"type": "video_url",
+						"id": "video_url",
+						"label": "YouTube or Vimeo link",
+						"accept": [
+							"youtube",
+							"vimeo"
+						]
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Container width",
+						"default": "100%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+
+							{
+								"value": "42%",
+								"label": "42%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "58%",
+								"label": "58%"
+							},
+							{
+								"value": "67%",
+								"label": "67%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "product",
+				"name": "Product",
+				"settings": [
+					{
+						"type": "product",
+						"id": "product",
+						"label": "Product"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Container width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+
+							{
+								"value": "42%",
+								"label": "42%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "58%",
+								"label": "58%"
+							},
+							{
+								"value": "67%",
+								"label": "67%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "products",
+				"name": "Products",
+				"settings": [
+					{
+						"type": "collection",
+						"id": "products",
+						"label": "Collection"
+					},
+					{
+						"type": "select",
+						"id": "limit",
+						"label": "Limit product",
+						"default": "2",
+						"options": [
+							{
+								"value": "1",
+								"label": "1"
+							},
+							{
+								"value": "2",
+								"label": "2"
+							},
+							{
+								"value": "3",
+								"label": "3"
+							},
+							{
+								"value": "4",
+								"label": "4"
+							}
+						]
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Container width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+
+							{
+								"value": "42%",
+								"label": "42%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "58%",
+								"label": "58%"
+							},
+							{
+								"value": "67%",
+								"label": "67%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "collection",
+				"name": "Collection",
+				"settings": [
+					{
+						"type": "collection",
+						"id": "collection",
+						"label": "Collection"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Container width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+
+							{
+								"value": "42%",
+								"label": "42%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "58%",
+								"label": "58%"
+							},
+							{
+								"value": "67%",
+								"label": "67%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "instagram",
+				"name": "Instagram Feed",
+				"settings": [
+					{
+						"type": "text",
+						"label": "Access Token",
+						"id": "access_token",
+						"info": "Get [access token](http://instagram.pixelunion.net/)"
+					},
+					{
+						"type": "number",
+						"label": "Limit",
+						"id": "instagram_limit",
+						"default": 8
+					},
+					{
+						"type": "select",
+						"id": "instagram_grid",
+						"label": "Columns per row",
+						"default": "4",
+						"options": [
+							{
+								"value": "2",
+								"label": "2"
+							},
+							{
+								"value": "3",
+								"label": "3"
+							},
+							{
+								"value": "4",
+								"label": "4"
+							},
+							{
+								"value": "5",
+								"label": "5"
+							},
+							{
+								"value": "6",
+								"label": "6"
+							},
+							{
+								"value": "7",
+								"label": "7"
+							},
+							{
+								"value": "8",
+								"label": "8"
+							},
+							{
+								"value": "9",
+								"label": "9"
+							},
+							{
+								"value": "10",
+								"label": "10"
+							}
+						]
+					},
+					{
+						"type": "select",
+						"id": "instagram_spacing",
+						"label": "Spacing",
+						"default": "30px",
+						"options": [
+							{
+								"value": "0",
+								"label": "0"
+							},
+							{
+								"value": "10px",
+								"label": "10px"
+							},
+							{
+								"value": "20px",
+								"label": "20px"
+							},
+							{
+								"value": "30px",
+								"label": "30px"
+							},
+							{
+								"value": "40px",
+								"label": "40px"
+							},
+							{
+								"value": "50px",
+								"label": "50px"
+							}
+						]
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Container width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+
+							{
+								"value": "42%",
+								"label": "42%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "58%",
+								"label": "58%"
+							},
+							{
+								"value": "67%",
+								"label": "67%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					},
+					{
+						"type": "checkbox",
+						"id": "instagram_slider",
+						"label": "Enable carousel"
+					}
+				]
+			},
+			{
+				"type": "html",
+				"name": "Custom HTML",
+				"settings": [
+					{
+						"type": "html",
+						"id": "code",
+						"label": "HTML"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Container width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "16%",
+								"label": "16%"
+							},
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "33%",
+								"label": "33%"
+							},
+
+							{
+								"value": "42%",
+								"label": "42%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "58%",
+								"label": "58%"
+							},
+							{
+								"value": "67%",
+								"label": "67%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "84%",
+								"label": "84%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			}
+		],
+		"presets": [
+			{
+				"name": "Custom content",
+				"category": "Advanced layout",
+				"blocks": [
+					{
+						"type": "text"
+					},
+					{
+						"type": "image"
+					}
+				]
+			}
+		]
+	}
+{% endschema %}

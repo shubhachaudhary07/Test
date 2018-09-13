@@ -1,0 +1,21 @@
+<div class="collection">
+	<a href="{% if collection.products == empty %}#{% else %}{{ collection.url }}{% endif %}" class="collection__image">
+		{% if collection.image == blank or collection.image contains 'no-image' %}
+			{% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+			{{ 'collection-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+		{% else %}
+			<img src="{{ collection | img_url: collection_image_size }}" alt="{{ collection.title }}" width="{{ collection_image_attr }}" height="{{ collection_image_attr }}" />
+		{% endif %}
+	</a>
+	{% if hide_title != true %}
+		<h3 class="collection__title center-xs">
+			<a href="{% if collection.products == empty %}#{% else %}{{ collection.url }}{% endif %}">
+				{% if collection.title == blank %}
+					{{ 'homepage.onboarding.collection_title' | t }}
+				{% else %}
+					{{ collection.title }}
+				{% endif %}
+			</a>
+		</h3>
+	{% endif %}
+</div>

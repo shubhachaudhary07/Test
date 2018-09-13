@@ -1,0 +1,58 @@
+{% unless image_width %}
+	{%- assign image_width = '570x570' -%}
+{% endunless %}
+
+{% assign on_sale = false %}
+{% if new_product.compare_at_price > new_product.price %}
+	{% assign on_sale = true %}
+{% endif %}
+
+{% assign sold_out = true %}
+{% if new_product.available %}
+	{% assign sold_out = false %}
+{% endif %}
+
+{% if new_product.title.size > 0 %}
+	<div class="product center-xs{% unless new_product.available %} product--sold-out{% endunless %} {% if on_sale %} product--one-sale{% endif %}">
+		<div class="product__image is-relative">
+			<a href="{{ new_product.url }}">
+				<img src="{{ new_product.featured_image.src | img_url: image_width }}" alt="{{ new_product.featured_image.alt | escape }}">
+			</a>
+			{% if sold_out %}
+				<span class="sold-out">{{ 'products.product.sold_out' | t }}</span>
+			{% endif %}
+			<div class="product__action is-absolute">
+				{% if new_product.variants.size > 1 %}
+					<a class="product__action--atc btn btn--square btn--dark is-relative" href="{{ new_product.url | within: collection }}">
+						<i class="fa fa-link"></i>
+						<span class="tooltip is-absolute">{{ 'products.product.view_detail' | t }}</span>
+					</a>
+				{% else %}
+					<a class="product__action--atc btn btn--square btn--dark is-relative btn--ajax btn--ajax__upsell" href="#">
+						<i class="fa fa-shopping-basket"></i>
+						<span class="tooltip is-absolute">{{ 'products.product.add_to_cart' | t }}</span>
+					</a>
+					<input type="hidden" class="product-form__variants" value="{{ new_product.variants.first.id }}"/>
+				{% endif %}
+			</div>
+		</div>
+		<h3 class="product__title">
+			<a href="{{ new_product.url }}">{{ new_product.title }}</a>
+		</h3>
+		{% include 'product-price' %}
+	</div>
+
+{% else %}
+	<div class="product center-xs{% unless new_product.available %} product--sold-out{% endunless %} {% if on_sale %} product--one-sale{% endif %}">
+		<div class="product__image is-relative">
+			<a href="#">
+				{% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+				{{ 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+			</a>
+		</div>
+		<h3 class="product__title">
+			<a href="#" title="{{ new_product.title }}">{{ 'homepage.onboarding.product_title' | t }}</a>
+		</h3>
+		<div class="product__price">{{ 1999 | money }}</div>
+	</div>
+{% endif %}

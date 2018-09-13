@@ -1,0 +1,498 @@
+{% assign background = section.settings.background %}
+{% assign text = section.settings.text %}
+{% assign link = section.settings.link %}
+{% assign container = section.settings.full_width %}
+{% assign margin = section.settings.margin %}
+{% assign padding = section.settings.padding %}
+
+<div data-section-id="{{ section.id }}" data-section-type="masonry-section">
+	{% if section.blocks.size > 0 %}
+		{%- assign spacing = section.settings.spacing | divided_by: 2 -%}
+		<style>
+			#shopify-section-{{section.id}} {
+				{% if background != blank %}
+					background: {{ background }};
+				{% endif %}
+
+				{% if text != blank %}
+					color: {{ text }};
+				{% endif %}
+				
+				{% if margin != blank %}
+					margin: {{ margin }};
+				{% endif %}
+
+				{% if padding != blank %}
+					padding: {{ padding }};
+				{% endif %}
+			}
+			
+			{% if link != blank %}
+				#shopify-section-{{section.id}} a {
+					color: {{ link }};
+				}
+			{% endif %}
+
+			.masonry--{{ section.id }} {
+				margin: 0 -{{ spacing }}px;
+			}
+
+			.masonry--{{ section.id }} .masonry__item {
+				padding: {{ spacing }}px;
+			}
+
+			{% for block in section.blocks %}
+				.masonry__item--{{ block.id }} h1,
+				.masonry__item--{{ block.id }} h2,
+				.masonry__item--{{ block.id }} h3,
+				.masonry__item--{{ block.id }} h4,
+				.masonry__item--{{ block.id }} h5,
+				.masonry__item--{{ block.id }} h6 {
+					color: {{ block.settings.heading_color }};
+				}
+
+				.masonry__item--{{ block.id }} {
+					color: {{ block.settings.text_color }};
+				}
+				.masonry__item--{{ block.id }} .masonry__image * {
+					margin: 0;
+				}
+			{% endfor %}
+
+			.sizer--{{ section.id }} {
+				width: 25%;
+			}
+			.one-fourth,
+			.one-second,
+			.third-fourth,
+			.w--100,
+			.masonry__image--content + img,
+			.masonry__image--content + a,
+			.masonry__image--content + a img {
+				width: 100%;
+			}
+			@media only screen and (min-width: 48em) {
+				.one-fourth,
+				.one-second,
+				.third-fourth,
+				.w--100 {
+					width: 50%;
+				}
+			}
+			@media only screen and (min-width: 62em) {
+				.one-fourth {
+					width: 25%;
+				}
+				.one-second {
+					width: 50%;
+				}
+				.third-fourth {
+					width: 100%;
+				}
+			}
+		</style>
+	{% endif %}
+	{% unless container %}<div class="container">{% endunless %}
+		{% if section.settings.title != blank %}
+			<div class="section-title center-xs">
+				<h3>{{ section.settings.title | escape }}</h3>
+			</div>
+		{% endif %}
+
+		<div class="masonry masonry--{{ section.id }}"
+			 data-isotope='{ "itemSelector": ".masonry__item", "percentPosition": true, "masonry": { "columnWidth": ".sizer--{{ section.id }}" } }'>
+			<div class="sizer--{{ section.id }}"></div>
+			{% if section.blocks.size > 0 %}
+				{% for block in section.blocks %}
+					{% case block.settings.width %}
+						{% when '25%' %}
+							{%- assign block_width = 'one-fourth' -%}
+							{%- assign image_size = '400x400' -%}
+						{% when '50%' %}
+							{%- assign block_width = 'one-second' -%}
+							{%- assign image_size = '600x600' -%}
+						{% when '75%' %}
+							{%- assign block_width = 'third-fourth' -%}
+							{%- assign image_size = '810x810' -%}
+						{% when '100%' %}
+							{%- assign block_width = 'w-100' -%}
+							{%- assign image_size = '1090x1090' -%}
+					{% endcase %}
+					{%- assign alignment = block.settings.alignment -%}
+					<div class="{{ block_width }} masonry__item masonry__item--{{ block.id }}" {{ block.shopify_attributes }}>
+						<div class="masonry__{{ block.type }}">
+							{% case block.type %}
+								{% when 'image' %}
+									{% if block.settings.image != blank %}
+										{%- assign image_alt = block.settings.image.alt -%}
+										{%- assign image_link = block.settings.url -%}
+										{%- assign image_effect = block.settings.effect -%}
+										{%- assign content = block.settings.content -%}
+
+										<div class="image__effect--{{ image_effect }} is-relative is-flex {{ block.settings.alignment }} center-xs middle-xs">
+											{% if content %}
+												<div class="masonry__image--content is-absolute">
+													{{ content }}
+												</div>
+											{% endif %}
+
+											{% if image_link %}<a href="{{ image_link }}">{% endif %}
+
+												{{ block.settings.image | img_url: 'master' | img_tag: image_alt }}
+
+											{% if image_link %}</a>{% endif %}
+										</div>
+									{% else %}
+										{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+									{% endif %}
+
+								{% when 'product' %}
+									{%- assign product = all_products[block.settings.product] -%}
+									{% include 'product-grid-item', image_width: image_size %}
+
+								{% when 'html' %}
+									{% if block.settings.code != blank %}
+										{{ block.settings.code }}
+									{% endif %}
+							{% endcase %}
+						</div>
+					</div>
+
+				{% endfor %}
+			{% endif %}
+		</div>
+
+		{% if section.blocks.size == 0 %}
+			{% include 'no-blocks' %}
+		{% endif %}
+
+	{% unless container %}</div>{% endunless %}
+</div>
+
+{% schema %}
+	{
+		"name": "Masonry content",
+		"class": "masonry-section",
+		"settings": [
+			{
+				"type": "header",
+				"content": "Layout"
+			},
+			{
+				"type": "checkbox",
+				"id": "full_width",
+				"label": "Enable section full-width"
+			},
+			{
+				"type": "text",
+				"id": "margin",
+				"label": "Margin",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "text",
+				"id": "padding",
+				"label": "Padding",
+				"default": "50px 0 30px",
+				"info": "Example 10px 20px 10px 20px"
+			},
+			{
+				"type": "header",
+				"content": "Content"
+			},
+			{
+				"type": "text",
+				"id": "title",
+				"label": "Heading",
+				"default": "Masonry section"
+			},
+			{
+				"type": "select",
+				"id": "spacing",
+				"label": "Spacing",
+				"default": "0",
+				"options": [
+					{
+						"value": "0",
+						"label": "none"
+					},
+					{
+						"value": "10",
+						"label": "10px"
+					},
+					{
+						"value": "20",
+						"label": "20px"
+					},
+					{
+						"value": "30",
+						"label": "30px"
+					},
+					{
+						"value": "40",
+						"label": "40px"
+					},
+					{
+						"value": "50",
+						"label": "50px"
+					}
+				]
+			},
+			{
+				"type": "header",
+				"content": "Colors"
+			},
+			{
+				"type": "color",
+				"id": "background",
+				"label": "Background"
+			},
+			{
+				"type": "color",
+				"id": "link",
+				"label": "Heading"
+			},
+			{
+				"type": "color",
+				"id": "text",
+				"label": "Text"
+			}
+		],
+		"blocks": [
+			{
+				"type": "image",
+				"name": "Image",
+				"settings": [
+					{
+						"type": "image_picker",
+						"id": "image",
+						"label": "Image"
+					},
+					{
+						"type": "select",
+						"id": "effect",
+						"label": "Effect",
+						"default": "none",
+						"options": [
+							{
+								"value": "none",
+								"label": "none"
+							},
+							{
+								"value": "1",
+								"label": "Mask"
+							},
+							{
+								"value": "2",
+								"label": "Black and white"
+							}
+						]
+					},
+					{
+						"type": "url",
+						"id": "url",
+						"label": "Image Link"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Block width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					},
+					{
+						"type": "select",
+						"id": "alignment",
+						"label": "Content alignment",
+						"default": "middle-md center-md",
+						"options": [
+							{
+								"value": "start-md top-md",
+								"label": "Top-Left"
+							},
+							{
+								"value": "center-md top-md",
+								"label": "Top-Center"
+							},
+							{
+								"value": "end-md top-md",
+								"label": "Top-Right"
+							},
+							{
+								"value": "middle-md start-md",
+								"label": "Middle-Left"
+							},
+							{
+								"value": "middle-md center-md",
+								"label": "Middle"
+							},
+							{
+								"value": "middle-md end-md",
+								"label": "Middle-Right"
+							},
+							{
+								"value": "bottom-md start-md",
+								"label": "Bottom-Left"
+							},
+							{
+								"value": "bottom-md center-md",
+								"label": "Bottom-Center"
+							},
+							{
+								"value": "bottom-md end-md",
+								"label": "Bottom-Right"
+							}
+						]
+					},
+					{
+						"type": "html",
+						"id": "content",
+						"label": "Content",
+						"info": "Allowed custom HTML"
+					},
+					{
+						"type": "header",
+						"content": "Colors"
+					},
+					{
+						"type": "color",
+						"id": "heading_color",
+						"label": "Heading color",
+						"default": "#ffffff"
+					},
+					{
+						"type": "color",
+						"id": "text_color",
+						"label": "Paragraph color",
+						"default": "#ffffff"
+					}
+				]
+			},
+			{
+				"type": "product",
+				"name": "Product",
+				"settings": [
+					{
+						"type": "product",
+						"id": "product",
+						"label": "Product"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Block width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "html",
+				"name": "Custom Content",
+				"settings": [
+					{
+						"type": "html",
+						"id": "code",
+						"label": "HTML"
+					},
+					{
+						"type": "select",
+						"id": "width",
+						"label": "Block width",
+						"default": "50%",
+						"options": [
+							{
+								"value": "25%",
+								"label": "25%"
+							},
+							{
+								"value": "50%",
+								"label": "50%"
+							},
+							{
+								"value": "75%",
+								"label": "75%"
+							},
+							{
+								"value": "100%",
+								"label": "100%"
+							}
+						]
+					}
+				]
+			}
+		],
+		"presets": [
+			{
+				"name": "Masonry content",
+				"category": "Advanced layout",
+				"blocks": [
+					{
+						"type": "image",
+						"settings": {
+							"width": "50%"
+						}
+					},
+					{
+						"type": "image",
+						"settings": {
+							"width": "25%"
+						}
+					},
+					{
+						"type": "image",
+						"settings": {
+							"width": "25%"
+						}
+					},
+					{
+						"type": "image",
+						"settings": {
+							"width": "25%"
+						}
+					},
+					{
+						"type": "image",
+						"settings": {
+							"width": "25%"
+						}
+					}
+				]
+			}
+		]
+	}
+{% endschema %}

@@ -1,0 +1,21 @@
+<ul class="mobile-nav is-absolute hide-xs">
+	{% for link in linklists[section.settings.main_linklist].links %}
+		{%- assign child_list_handle = link.title | handleize -%}
+
+		<li class="mobile-nav__item is-relative">
+			<a href="{{ link.url }}" class="mobile-nav__item-link mobile-nav__item-header">{{ link.title }}</a>
+			{% if linklists[child_list_handle].links != blank %}
+				<span class="mobile-nav__arrow is-absolute"><i class="fa fa-angle-down"></i></span>
+				<ul class="mobile-nav__dropdown hide-xs" data-parent="{{ child_list_handle }}" data-level="2">
+					{% for childlink in linklists[child_list_handle].links %}
+						<li class="mobile-nav__item">
+							<a href="{{ childlink.url }}" class="mobile-nav__item-link">
+								{{ childlink.title | escape }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+		</li>
+	{% endfor %}
+</ul>

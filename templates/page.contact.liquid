@@ -1,0 +1,53 @@
+<div class="page has-title">
+	<div class="head">
+		<div class="container">
+			<div class="head__title center-xs">
+				<h1 class="section-header__title">{{ page.title }}</h1>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		{{ page.content }}
+	</div>
+	
+	<div class="container container--xs">
+		{% form 'contact' %}
+
+			{% comment %}
+			  Successful message
+			{% endcomment %}
+			{% if form.posted_successfully? %}
+			  <p class="note form-success">
+				{{ 'contact.form.post_success' | t }}
+			  </p>
+			{% endif %}
+
+			{{ form.errors | default_errors }}
+
+			{% assign name_attr = 'contact.form.name' | t | handle %}
+			<p>
+				<input type="text" id="ContactFormName" class="full" name="contact[{{ name_attr }}]" placeholder="{{ 'contact.form.name' | t }}" autocapitalize="words" value="{% if form[name_attr] %}{{ form[name_attr] }}{% elsif customer %}{{ customer.name }}{% endif %}">
+			</p>
+
+			<p>
+				<input type="email" id="ContactFormEmail" class="full" name="contact[email]" placeholder="{{ 'contact.form.email' | t }}" autocorrect="off" autocapitalize="off" value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}">
+			</p>
+
+			{% assign name_attr = 'contact.form.phone' | t | handle %}
+		
+			<p>
+				<input type="tel" id="ContactFormPhone" class="full" name="contact[{{ name_attr }}]" placeholder="{{ 'contact.form.phone' | t }}" pattern="[0-9\-]*" value="{% if form[name_attr] %}{{ form[name_attr] }}{% elsif customer %}{{ customer.phone }}{% endif %}">
+			</p>
+
+			<p>
+				<textarea rows="10" id="ContactFormMessage" class="full" name="contact[body]" placeholder="{{ 'contact.form.message' | t }}">{% if form.body %}{{ form.body }}{% endif %}</textarea>
+			</p>
+			
+			<p>
+				<input type="submit" class="btn btn--primary btn-xs--md full" value="{{ 'contact.form.send' | t }}">
+			</p>
+
+		{% endform %}
+	</div>
+</div>

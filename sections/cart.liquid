@@ -1,0 +1,167 @@
+<div class="container" data-section-id="{{ section.id }}" data-section-type="cart-template">
+	<div class="head">
+		<div class="container">
+			<div class="head__title center-xs">
+				<h1 class="section-header__title">{{ 'cart.general.title' | t }}</h1>
+			</div>
+		</div>
+	</div>
+	{% if cart.item_count > 0 %}
+		<form action="/cart" method="post" novalidate class="cart">
+			<table class="cart__table">
+				<thead class="cart__head upc">
+					<th class="cart__image">&nbsp;</th>
+					<th>{{ 'cart.label.product' | t }}</th>
+					<th>{{ 'cart.label.price' | t }}</th>
+					<th>{{ 'cart.label.quantity' | t }}</th>
+					<th>{{ 'cart.label.total' | t }}</th>
+					<th>&nbsp;</th>
+				</thead>
+				<tbody>
+					{% for item in cart.items %}
+						<tr class="cart__row">
+							<td class="cart__image">
+								<a href="{{ item.url | within: collections.all }}">
+									<img src="{{ item | img_url: '100x' }}" alt="{{ item.title | escape }}">
+								</a>
+							</td>
+
+							<td class="cart__meta">
+								<h3 class="cart__meta--title">
+									<a href="{{ item.url }}">
+										{{ item.product.title }}
+										{% if item.quantity > 1 %}
+											<span class="large--hide"><span class="visually-hidden">{{ 'cart.label.quantity' | t }}</span>(x{{ item.quantity }})</span>
+										{% endif %}
+									</a>
+								</h3>
+								{% unless item.variant.title contains 'Default' %}
+									<div class="cart__meta--text">
+										{% for option in item.product.options %}
+											{{ option }}: {{ item.variant.options[forloop.index0] }}</br>
+										{% endfor %}
+									</div>
+								{% endunless %}
+
+								{%- assign property_size = item.properties | size -%}
+								{% if property_size > 0 %}
+									<div class="cart__meta--text">
+										{% for p in item.properties %}
+											{% unless p.last == blank %}
+												{{ p.first }}:
+												{% if p.last contains '/uploads/' %}
+													<a href="{{ p.last }}">{{ p.last | split: '/' | last }}</a>
+												{% else %}
+													{{ p.last }}
+												{% endif %}
+											{% endunless %}
+										{% endfor %}
+									</div>
+								{% endif %}
+								<div class="cart__edit hide-sm">
+									<button type="button" class="btn btn--outline btn-xs--xs cart__edit--btn" data-target="line{{ forloop.index }}">
+										<span class="cart__edit--edit">{{ 'cart.general.edit' | t }}</span>
+										<span class="cart__edit--cancel">{{ 'cart.general.cancel' | t }}</span>
+									</button>
+								</div>
+							</td>
+
+							<td class="cart__price end-xs start-sm">
+								{{ item.price | money }}
+
+								{% for discount in item.discounts %}
+									<div class="cart-item__discount large--hide">{{ discount.title }}</div>
+								{% endfor %}
+							</td>
+
+							<td class="cart__update is-relative">
+								<a class="is-absolute hide-sm" href="/cart/change?line={{ forloop.index }}&amp;quantity=0" class="cart__remove"><i class="fa fa-trash-o"></i></a>
+
+								<div class="cart__qty">
+									<label for="updates_{{ item.key }}" class="cart__qty-label hide-sm">{{ 'cart.label.quantity' | t }}</label>
+									<input class="cart__qty-input full" type="number" name="updates[]" id="updates_{{ item.key }}" value="{{ item.quantity }}" min="0" pattern="[0-9]*">
+								</div>
+								<input type="submit" name="update" class="btn btn--primary btn-xs--sm full upc" value="{{ 'cart.general.update' | t }}">
+							</td>
+
+							<td class="cart__total">
+								{% if item.original_line_price != item.line_price %}
+									<div class="cart-item__original-price"><s>{{ item.original_line_price | money }}</s></div>
+								{% endif %}
+
+								<div>
+									{{ item.line_price | money }}
+								</div>
+
+								{% for discount in item.discounts %}
+									<div class="cart-item__discount">{{ discount.title }}</div>
+								{% endfor %}
+							</td>
+							<td class="cart__remove">
+								<a href="/cart/change?line={{ forloop.index }}&amp;quantity=0" class="cart__remove"><i class="fa fa-trash-o"></i></a>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
+			<div class="cart__footer">
+				<div class="row">
+					{% if section.settings.cart_notes_enable %}
+						<div class="cart-note col-sm-4 col-xs-12">
+							<label class="cart-note__label center-xs start-sm">{{ 'cart.general.note' | t }}</label>
+							<textarea name="note" class="cart-note__textarea">{{ cart.note }}</textarea>
+						</div>
+					{% endif %}
+
+					<div class="cart__footer-btn {% if section.settings.cart_notes_enable %} col-sm-8{% endif %} col-xs-12 center-xs end-sm">
+						<div class="cart__subtotal">
+							<span class="cart__subtotal--title"><strong>{{ 'cart.general.subtotal' | t }}</strong></span>
+							<span class="cart__subtotal--price">{{ cart.total_price | money }}</span>
+						</div>
+
+						{% if cart.total_discounts > 0 %}
+							<div class="cart__savings">
+								{{ 'cart.general.savings' | t }}
+								<span class="cart__savings-amount">{{ cart.total_discounts | money }}</span>
+							</div>
+						{% endif %}
+
+						<div class="cart__shipping">{{ 'cart.general.shipping_at_checkout' | t }}</div>
+
+						<div class="cart__actions">
+							<a href="collections/all" class="btn btn--secondary btn-xs--md upc" >{{ 'cart.general.continue_shopping' | t }}</a>
+
+							<input type="submit" name="update" class="btn btn--secondary btn-xs--md upc" value="{{ 'cart.general.update' | t }}">
+
+							<input type="submit" name="checkout" class="btn btn--primary btn-xs--md upc" value="{{ 'cart.general.checkout' | t }}">
+
+							{% if additional_checkout_buttons %}
+								<div class="additional-checkout-buttons">{{ content_for_additional_checkout_buttons }}</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	{% else %}
+		<div class="cart--empty center-xs">
+			<p>{{ 'cart.general.empty' | t }}</p>
+			<a href="/collections/all" class="btn btn--primary btn-xs--sm btn-icon--after">{{ 'general.404.link' | t }}<i class="fa fa-angle-right"></i></a>
+		</div>
+	{% endif %}
+</div>
+
+{% schema %}
+	{
+		"name": "Cart settings",
+		"settings": [
+			{
+				"type": "checkbox",
+				"id": "cart_notes_enable",
+				"label": "Enable cart notes",
+				"default": false
+			}
+		]
+	}
+{% endschema %}
